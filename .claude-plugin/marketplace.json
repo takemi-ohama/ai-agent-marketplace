@@ -1,15 +1,12 @@
 {
-  "name": "AI Agent Marketplace",
-  "description": "Internal marketplace for sharing Claude Code plugins and MCP configurations",
-  "version": "1.0.0",
+  "name": "ai-agent-marketplace",
   "owner": {
-    "name": "takemi-ohama",
-    "url": "https://github.com/takemi-ohama"
+    "name": "takemi-ohama"
   },
   "plugins": [
     {
       "name": "mcp-integration",
-      "path": "plugins/mcp-integration",
+      "source": "./plugins/mcp-integration",
       "description": "Project skill for integrating GitHub, Serena, BigQuery, and Notion MCPs"
     }
   ]
