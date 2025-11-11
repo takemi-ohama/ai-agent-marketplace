@@ -1,0 +1,14 @@
+{
+  "name": "mcp-integration",
+  "version": "1.0.0",
+  "description": "Project skill for integrating GitHub, Serena, BigQuery, and Notion MCPs into Claude Code projects",
+  "author": {
+    "name": "takemi-ohama",
+    "url": "https://github.com/takemi-ohama"
+  },
+  "skills": [
+    {
+      "path": "skills/mcp-integration/SKILL.md"
+    }
+  ]
+}
