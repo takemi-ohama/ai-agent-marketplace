@@ -42,10 +42,10 @@ Automatic Slack notifications when Claude Code work is completed with repository
 ### Required Environment Variables
 
 ```bash
-export SLACK_BOT_TOKEN="xoxb-your-token-here"
-export SLACK_CHANNEL_ID="C09SPLRQ5Q9"
-export SLACK_USER_MENTION="<@U05MS4DBF9V>"  # Optional
-```
+```bash
+export SLACK_BOT_TOKEN="xoxb-your-bot-token-here"
+export SLACK_CHANNEL_ID="YOUR_CHANNEL_ID"
+export SLACK_USER_MENTION="<@YOUR_USER_ID>"  # Optional
 
 ### Slack App Setup
 
