@@ -1,0 +1,14 @@
+{
+  "name": "slack-notification",
+  "version": "1.0.0",
+  "description": "Automatic Slack notifications when Claude Code work is completed",
+  "author": {
+    "name": "takemi-ohama",
+    "url": "https://github.com/takemi-ohama"
+  },
+  "skills": [
+    {
+      "path": "skills/slack-notification/SKILL.md"
+    }
+  ]
+}
