@@ -55,7 +55,7 @@ Claude Codeの作業完了時に自動的にSlack通知を送信するプラグ�
 **必要な環境変数:**
 - `SLACK_BOT_TOKEN`: Slackボットトークン（必須）
 - `SLACK_CHANNEL_ID`: 通知先チャンネルID（必須）
-- `SLACK_USER_MENTION`: メンションするユーザー（オプション、例: `<@U05MS4DBF9V>`）
+- `SLACK_USER_MENTION`: メンションするユーザー（オプション、例: `<@USER_ID>`）
 
 **ドキュメント:**
 - [インストールガイド](https://github.com/volareinc/carmo-ai/blob/main/predict_contract/plugins/slack-notification/README.md)
