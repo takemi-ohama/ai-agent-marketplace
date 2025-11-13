@@ -24,6 +24,7 @@
 
 4. **PR作成**
 - タイトル・説明: 日本語、body: Summary+Test plan
+   - **⚠️セキュリティ注意**: 機密情報（トークン、パスワード、API キー等）を含めないこと
    - body末尾に <!-- I want to review in Japanese. --> を入れる
 
 ## 命名規則

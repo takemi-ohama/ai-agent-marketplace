@@ -121,9 +121,9 @@ GOOGLE_APPLICATION_CREDENTIALS=
 
 # DBHub MCP (Optional - only if using database operations)
 # Database connection string (DSN) - examples:
-# PostgreSQL: postgres://user:password@localhost:5432/dbname?sslmode=disable
-# MySQL: mysql://user:password@localhost:3306/dbname
-# SQLite: sqlite:///path/to/database.db
+# PostgreSQL: postgres://USERNAME:PASSWORD@HOST:PORT/DATABASE?sslmode=disable
+# MySQL: mysql://USERNAME:PASSWORD@HOST:PORT/DATABASE
+# SQLite: sqlite:///PATH/TO/DATABASE.db
 DATABASE_DSN=
 
 # Note: Serena MCP, AWS Documentation MCP, and Chrome DevTools MCP do not require authentication
@@ -141,7 +141,7 @@ DATABASE_DSN=
 
 **Example merge logic:**
 ```
-Existing .env has: GITHUB_PERSONAL_ACCESS_TOKEN=ghp_xxx, CUSTOM_VAR=value
+Existing .env has: GITHUB_PERSONAL_ACCESS_TOKEN=ghp_XXXXXXXXXXXXXXXX, CUSTOM_VAR=value
 Template needs: GITHUB_PERSONAL_ACCESS_TOKEN, NOTION_API_KEY, GOOGLE_APPLICATION_CREDENTIALS, DATABASE_DSN
 
 Result: Append to .env:
@@ -232,8 +232,8 @@ Inform the user about what was created or updated and guide them to fill in the 
 
 **Example `.env` after filling:**
 ```bash
-GITHUB_PERSONAL_ACCESS_TOKEN=ghp_abc123xyz789...
-NOTION_API_KEY=secret_abc123xyz789...
+GITHUB_PERSONAL_ACCESS_TOKEN=ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+NOTION_API_KEY=secret_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 GOOGLE_APPLICATION_CREDENTIALS=/Users/you/Downloads/my-project-key.json
 ```
 
