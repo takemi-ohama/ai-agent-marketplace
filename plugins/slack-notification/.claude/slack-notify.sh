@@ -2,11 +2,60 @@
 
 # Slack notification script for Claude Code completion
 
+# Function to load .env file from project root
+load_env_file() {
+  # Get the directory where this script is located
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+  # Search for .env file in parent directories (up to project root)
+  CURRENT_DIR="$SCRIPT_DIR"
+  while [ "$CURRENT_DIR" != "/" ]; do
+    # Go up one directory
+    CURRENT_DIR="$(dirname "$CURRENT_DIR")"
+
+    # Check if .env exists
+    if [ -f "$CURRENT_DIR/.env" ]; then
+      # Load .env file, but don't override existing environment variables
+      while IFS='=' read -r key value; do
+        # Skip empty lines and comments
+        [[ -z "$key" || "$key" =~ ^[[:space:]]*# ]] && continue
+
+        # Remove leading/trailing whitespace from key and value
+        key=$(echo "$key" | xargs)
+        value=$(echo "$value" | xargs)
+
+        # Remove quotes from value if present
+        value="${value%\"}"
+        value="${value#\"}"
+        value="${value%\'}"
+        value="${value#\'}"
+
+        # Only set if the environment variable is not already set
+        if [ -z "${!key}" ]; then
+          export "$key=$value"
+        fi
+      done < "$CURRENT_DIR/.env"
+
+      return 0
+    fi
+
+    # Stop at git repository root
+    if [ -d "$CURRENT_DIR/.git" ]; then
+      break
+    fi
+  done
+
+  return 1
+}
+
+# Load environment variables from .env file (if exists)
+# Existing environment variables take precedence
+load_env_file
+
 # Get configuration from environment variables
 CHANNEL_ID="${SLACK_CHANNEL_ID}"
 USER_MENTION="${SLACK_USER_MENTION}"
 
-# Exit silently if SLACK_CHANNEL_ID is not set
 # Exit silently if required environment variables are not set
 if [ -z "$CHANNEL_ID" ] || [ -z "$SLACK_BOT_TOKEN" ]; then
   exit 0
@@ -15,8 +64,9 @@ fi
 # Get current timestamp
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 
-# Check message type from argument
+# Check message type and work summary from arguments
 MESSAGE_TYPE=${1:-"complete"}
+WORK_SUMMARY_ARG=${2:-""}
 
 # Create message based on type
 case "$MESSAGE_TYPE" in
@@ -69,24 +119,30 @@ fi
 # Get repository name from git remote or environment variable
 REPO_NAME=$(basename $(git rev-parse --show-toplevel 2>/dev/null) 2>/dev/null || echo "${GIT_REPO:-unknown}")
 
-# Generate Japanese work summary from git diff
+# Use work summary from argument if provided, otherwise generate from git diff
 WORK_SUMMARY=""
-if git rev-parse --git-dir > /dev/null 2>&1; then
-  # Get changed files from last commit
-  CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null | wc -l)
-  MAIN_FILE=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null | head -1 | xargs basename 2>/dev/null)
+if [ -n "$WORK_SUMMARY_ARG" ]; then
+  # Use the summary provided as argument (from SKILL)
+  WORK_SUMMARY="$WORK_SUMMARY_ARG"
+else
+  # Fallback: Generate Japanese work summary from git diff
+  if git rev-parse --git-dir > /dev/null 2>&1; then
+    # Get changed files from last commit
+    CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null | wc -l)
+    MAIN_FILE=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null | head -1 | xargs basename 2>/dev/null)
 
-  if [ "$CHANGED_FILES" -gt 0 ] && [ -n "$MAIN_FILE" ]; then
-    if [ "$CHANGED_FILES" -eq 1 ]; then
-      WORK_SUMMARY="${MAIN_FILE}を更新"
-    else
-      WORK_SUMMARY="${MAIN_FILE}等${CHANGED_FILES}件のファイルを更新"
+    if [ "$CHANGED_FILES" -gt 0 ] && [ -n "$MAIN_FILE" ]; then
+      if [ "$CHANGED_FILES" -eq 1 ]; then
+        WORK_SUMMARY="${MAIN_FILE}を更新"
+      else
+        WORK_SUMMARY="${MAIN_FILE}等${CHANGED_FILES}件のファイルを更新"
+      fi
     fi
   fi
 fi
 
-# Truncate to 40 chars
-WORK_SUMMARY=$(echo "$WORK_SUMMARY" | head -c 40)
+# Truncate to 100 chars (increased from 40 to accommodate SKILL-generated summaries)
+WORK_SUMMARY=$(echo "$WORK_SUMMARY" | head -c 100)
 
 # Create detailed message
 if [ -n "$WORK_SUMMARY" ]; then
