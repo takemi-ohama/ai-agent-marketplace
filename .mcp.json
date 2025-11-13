@@ -1,0 +1,56 @@
+{
+    "name": "AWS CDK Project MCP Configuration",
+    "mcpServers": {
+        "github": {
+            "command": "docker",
+            "args": [
+                "run",
+                "--rm",
+                "-i",
+                "--pull=always",
+                "-e",
+                "GITHUB_PERSONAL_ACCESS_TOKEN",
+                "ghcr.io/github/github-mcp-server:latest"
+            ],
+            "env": {
+                "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+            },
+            "disabled": false
+        },
+        "serena": {
+            "command": "uvx",
+            "args": [
+                "--from",
+                "git+https://github.com/oraios/serena",
+                "serena",
+                "start-mcp-server",
+                "--context",
+                "ide-assistant",
+                "--enable-web-dashboard",
+                "False"
+            ]
+        },
+        "awslabs.core-mcp-server": {
+            "command": "uvx",
+            "args": [
+                "awslabs.core-mcp-server@latest"
+            ],
+            "env": {
+                "FASTMCP_LOG_LEVEL": "ERROR",
+                "AWS_REGION": "ap-northeast-1"
+            },
+            "disabled": false
+        },
+        "awslabs.aws-documentation-mcp-server": {
+            "command": "uvx",
+            "args": [
+                "awslabs.aws-documentation-mcp-server@latest"
+            ],
+            "env": {
+                "FASTMCP_LOG_LEVEL": "ERROR",
+                "AWS_DOCUMENTATION_PARTITION": "aws"
+            },
+            "disabled": false
+        }
+    }
+}
