@@ -33,11 +33,10 @@ load_env_file() {
           continue
         fi
 
-        # Remove quotes from value if present
-        value="${value%\"}"
-        value="${value#\"}"
-        value="${value%\'}"
-        value="${value#\'}"
+        # Remove surrounding quotes (either single or double)
+        if [[ "$value" =~ ^\"(.*)\"$ ]] || [[ "$value" =~ ^\'(.*)\'$ ]]; then
+          value="${BASH_REMATCH[1]}"
+        fi
 
         # Only set if the environment variable is not already set
         if [ -z "${!key}" ]; then
@@ -55,6 +54,18 @@ load_env_file() {
   done
 
   return 1
+}
+
+# JSON escape function to safely include variables in JSON payloads
+json_escape() {
+  local value="$1"
+  # Escape backslash, double quote, and control characters
+  value="${value//\\/\\\\}"      # Escape backslash
+  value="${value//\"/\\\"}"      # Escape double quote
+  value="${value//$'\n'/\\n}"    # Escape newline
+  value="${value//$'\r'/\\r}"    # Escape carriage return
+  value="${value//$'\t'/\\t}"    # Escape tab
+  echo "$value"
 }
 
 # Load environment variables from .env file (if exists)
@@ -97,12 +108,15 @@ else
   MENTION_MESSAGE="${MESSAGE}"
 fi
 
+# Escape message for JSON payload
+ESCAPED_MENTION_MESSAGE=$(json_escape "$MENTION_MESSAGE")
+
 RESPONSE=$(curl -s -X POST  \
   -H "Authorization: Bearer ${SLACK_BOT_TOKEN}" \
   -H "Content-Type: application/json" \
   -d "{
     \"channel\": \"${CHANNEL_ID}\",
-    \"text\": \"${MENTION_MESSAGE}\"
+    \"text\": \"${ESCAPED_MENTION_MESSAGE}\"
   }")
 
 # Check if the API call was successful
@@ -126,7 +140,7 @@ fi
 
 # Step 3: Post message without mention with repository name and work summary
 # Get repository name from git remote or environment variable
-REPO_NAME=$(basename $(git rev-parse --show-toplevel 2>/dev/null) 2>/dev/null || echo "${GIT_REPO:-unknown}")
+REPO_NAME=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "${GIT_REPO:-unknown}")
 
 # Use work summary from argument if provided, otherwise generate from git diff
 WORK_SUMMARY=""
@@ -138,7 +152,9 @@ else
   if git rev-parse --git-dir > /dev/null 2>&1; then
     # Get changed files from last commit
     CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null | wc -l)
-    MAIN_FILE=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null | head -1 | xargs basename 2>/dev/null)
+    MAIN_FILE=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null | head -1)
+    # Get basename using parameter expansion (safe, no xargs)
+    MAIN_FILE="${MAIN_FILE##*/}"
 
     if [ "$CHANGED_FILES" -gt 0 ] && [ -n "$MAIN_FILE" ]; then
       if [ "$CHANGED_FILES" -eq 1 ]; then
@@ -160,10 +176,13 @@ else
   DETAILED_MESSAGE="[${REPO_NAME}] ${MESSAGE}"
 fi
 
+# Escape message for JSON payload
+ESCAPED_DETAILED_MESSAGE=$(json_escape "$DETAILED_MESSAGE")
+
 curl -s -X POST https://slack.com/api/chat.postMessage \
   -H "Authorization: Bearer ${SLACK_BOT_TOKEN}" \
   -H "Content-Type: application/json" \
   -d "{
     \"channel\": \"${CHANNEL_ID}\",
-    \"text\": \"${DETAILED_MESSAGE}\"
+    \"text\": \"${ESCAPED_DETAILED_MESSAGE}\"
   }"

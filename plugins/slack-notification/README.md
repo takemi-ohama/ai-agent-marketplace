@@ -261,7 +261,7 @@ plugins/slack-notification/
 └── README.md                    # このファイル
 ```
 
-### settings.json
+### .claude/settings.json
 
 Claude Codeのstopフックを設定：
 
@@ -365,14 +365,14 @@ brew install coreutils
 
 ### 通知メッセージのフォーマット変更
 
-`slack-notify.sh`の`SUMMARY`変数を編集：
+`slack-notify.sh`の`DETAILED_MESSAGE`変数を編集：
 
 ```bash
 # 現在
-SUMMARY="[${REPO_NAME}] Claude Codeの作業が完了しました (${TIMESTAMP})\n作業内容: ${WORK_DESC}"
+DETAILED_MESSAGE="[${REPO_NAME}] ${MESSAGE}\n作業内容: ${WORK_SUMMARY}"
 
 # カスタム例
-SUMMARY="✅ ${REPO_NAME} - ${WORK_DESC} (${TIMESTAMP})"
+DETAILED_MESSAGE="✅ ${REPO_NAME} - ${WORK_SUMMARY} (${TIMESTAMP})"
 ```
 
 ### 通知条件のカスタマイズ
