@@ -5,10 +5,5 @@
   "author": {
     "name": "takemi-ohama",
     "url": "https://github.com/takemi-ohama"
-  },
-  "skills": [
-    {
-      "path": "skills/slack-notification/SKILL.md"
-    }
-  ]
+  }
 }
