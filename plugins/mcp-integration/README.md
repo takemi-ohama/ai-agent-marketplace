@@ -1,12 +1,10 @@
 # MCP Integration Plugin
 
-Claude CodeプロジェクトでMCP（Model Context Protocol）サーバーを**自動的に**セットアップするプラグインです。
+Claude CodeプロジェクトにMCP（Model Context Protocol）サーバーを**自動的に**統合するプラグインです。
 
 ## 概要
 
-このプラグインは、プロジェクトスキルとして動作し、**「MCPサーバーをセットアップして」と言うだけで**、複数の強力なMCPサーバーを一括でセットアップします。手動での`.mcp.json`作成は不要です。
-
-**スマートマージ機能搭載**: 既に`.mcp.json`や`.env`が存在する場合でも安心。既存の設定やトークンは保持したまま、不足している設定だけを追加します。
+このプラグインをインストールするだけで、複数の強力なMCPサーバーが**自動的に有効化**されます。手動での`.mcp.json`作成や設定は不要です。
 
 **提供されるMCPサーバー：**
 
@@ -15,7 +13,7 @@ Claude CodeプロジェクトでMCP（Model Context Protocol）サーバーを**
 - **Notion MCP**: ドキュメント管理、データベース操作
 - **AWS Documentation MCP**: AWS公式ドキュメントへのアクセス
 - **BigQuery MCP**: データベースクエリとスキーマ管理
-- **DBHub MCP**: ユニバーサルデータベースゲートウェイ（PostgreSQL、MySQL...）
+- **DBHub MCP**: ユニバーサルデータベースゲートウェイ（PostgreSQL、MySQL、SQLite等）
 - **Chrome DevTools MCP**: Chromeブラウザの自動化・デバッグ・パフォーマンス分析
 - **Codex CLI MCP**: コード品質とアーキテクチャ分析、AI支援コードレビュー
 
@@ -28,7 +26,6 @@ Claude CodeプロジェクトでMCP（Model Context Protocol）サーバーを**
 - `uvx` がインストール済み（`pip install uv`）
 - Node.js（DBHub、Chrome DevTools MCP用）
 - Codex CLI（Codex CLI MCP用）- オプション
-  - ChatGPT Plus/Pro/Team/Edu/Enterprise OR OpenAI APIキー
 
 ### ステップ1: マーケットプレイスの追加
 
@@ -46,80 +43,38 @@ Claude CodeプロジェクトでMCP（Model Context Protocol）サーバーを**
 /plugin install mcp-integration@ai-agent-marketplace
 ```
 
-### ステップ3: スキルを起動してセットアップ
+これだけで、すべてのMCPサーバーが自動的に登録されます！
 
-プラグインをインストールしたら、スキルを起動して自動セットアップを実行します。
+### ステップ3: .envファイルの作成
 
-```
-@mcp-integration MCPをセットアップして
-```
-
-スキルが自動的に：
-1. `.mcp.json` ファイルを作成または更新（`envFile`設定済み）
-   - 新規作成：すべてのMCPサーバー設定を追加
-   - 既存の場合：不足しているMCPサーバーのみを追加（既存設定は保持）
-2. `.env` テンプレートファイルを作成または更新（変数名のみ、値は空）
-   - 新規作成：すべての環境変数を追加
-   - 既存の場合：不足している変数のみを追加（既存の値は保持）
-3. `.env` を `.gitignore` に追加（まだの場合）
-4. 前提条件（Python、uvx）の確認
-5. 次のステップの案内
-
-**スマートマージ機能:**
-- ✅ 既存の設定やトークンは上書きされません
-- ✅ 不足している設定だけを追加します
-- ✅ カスタムMCPサーバーや環境変数も保持されます
-
-### ステップ4: 必要なツールのインストール（まだの場合）
-
-スキルが確認しますが、手動でもインストール可能：
+プロジェクトルートに `.env` ファイルを作成し、必要な認証情報を設定します。
 
 ```bash
-# uvx（Serena、BigQuery用）
-pip install uv
-
-# 確認
-uvx --version
-```
-
-### ステップ5: .envファイルに値を入力
-
-スキルが作成した `.env` テンプレートファイルを開き、必要な値を入力します。
-
-#### 作成された.envファイル
-
-スキルが以下の内容で `.env` ファイルを作成済みです：
-
-```bash
-# GitHub MCP (Required - basic functionality)
-# Get token from: https://github.com/settings/tokens
-# Required scopes: repo, read:org, workflow
+# GitHub MCP (必須 - 基本機能用)
+# トークン取得: https://github.com/settings/tokens
+# 必要なスコープ: repo, read:org, workflow
 GITHUB_PERSONAL_ACCESS_TOKEN=
 
-# Notion MCP (Optional - only if using Notion)
-# Get token from: https://www.notion.so/my-integrations
+# Notion MCP (オプション - Notion使用時のみ)
+# トークン取得: https://www.notion.so/my-integrations
 NOTION_API_KEY=
 
-# BigQuery MCP (Optional - only if using BigQuery)
-# Create service account at: https://console.cloud.google.com/iam-admin/serviceaccounts
-# Required roles: BigQuery Data Editor, BigQuery Job User
+# BigQuery MCP (オプション - BigQuery使用時のみ)
+# サービスアカウント作成: https://console.cloud.google.com/iam-admin/serviceaccounts
+# 必要なロール: BigQuery Data Editor, BigQuery Job User
 GOOGLE_APPLICATION_CREDENTIALS=
 
-# DBHub MCP (Optional - only if using database operations)
-# Database connection string (DSN) - examples:
-# PostgreSQL: postgres://user:password@localhost:5432/dbname?sslmode=disable
-# MySQL: mysql://user:password@localhost:3306/dbname
-# SQLite: sqlite:///path/to/database.db
+# DBHub MCP (オプション - データベース操作用)
+# データベース接続文字列 (DSN) - 例:
+# PostgreSQL: postgres://USERNAME:PASSWORD@HOST:PORT/DATABASE?sslmode=disable
+# MySQL: mysql://USERNAME:PASSWORD@HOST:PORT/DATABASE
+# SQLite: sqlite:///PATH/TO/DATABASE.db
 DATABASE_DSN=
 
-# Codex CLI MCP (Required - authenticate separately)
-# Run: codex login (ChatGPT) OR printenv OPENAI_API_KEY | codex login --with-api-key
-# Authentication is stored in ~/.codex/auth.json, not in .env file
-
-# Note: Serena MCP, AWS Documentation MCP, and Chrome DevTools MCP do not require authentication
+# 注意: Serena MCP、AWS Documentation MCP、Chrome DevTools MCP、Codex CLI MCPは認証不要
+# Codex CLI MCPはインストール必要: https://github.com/openai/codex/releases
+# インストール後、'codex login' (ChatGPT) または 'printenv OPENAI_API_KEY | codex login --with-api-key' を実行
 ```
-
-このファイルの `=` の後に、取得したトークンや認証情報を入力してください。
 
 #### 各トークンの取得方法
 
@@ -150,33 +105,11 @@ DATABASE_DSN=
 
 **DBHub認証情報（オプション）:**
 1. 使用するデータベースの接続情報を取得
-2. データベース接続文字列（DSN）を作成：
-   - PostgreSQL: `postgres://user:password@localhost:5432/dbname?sslmode=disable`
-   - MySQL: `mysql://user:password@localhost:3306/dbname`
-   - SQLite: `sqlite:///path/to/database.db`
+2. データベース接続文字列（DSN）を作成
 3. DSNを `.env` ファイルに記載
 
-#### 入力例
-
-値を入力した後の `.env` ファイルの例：
-
-```bash
-GITHUB_PERSONAL_ACCESS_TOKEN=ghp_abc123xyz789def456...
-NOTION_API_KEY=secret_abc123xyz789...
-GOOGLE_APPLICATION_CREDENTIALS=/Users/yourname/Downloads/my-project-key.json
-DATABASE_DSN=postgres://myuser:mypassword@localhost:5432/mydb?sslmode=disable
-```
-
-#### セキュリティ確認
-
-✅ **スキルが自動的に実施済み:**
-- `.env` を `.gitignore` に追加済み（機密情報のコミット防止）
-
-この設定により、`.env` ファイルは誤ってGitにコミットされません。
-
-### ステップ6: Codex CLI認証（オプション - Codex使用時のみ）
-
-Codex CLI MCPを使用する場合は、事前に認証が必要です。
+**Codex CLI認証（オプション）:**
+Codex CLI MCPを使用する場合、事前に認証が必要です。
 
 **方法1: ChatGPTログイン（推奨）**
 ```bash
@@ -189,13 +122,19 @@ codex login
 printenv OPENAI_API_KEY | codex login --with-api-key
 ```
 
-詳細は[認証ガイド](./skills/mcp-integration/mcp-authentication-guide.md#codex-cli-mcp)を参照してください。
+#### .envファイルの保護
 
-### ステップ7: Claude Codeを再起動
+`.env` ファイルには機密情報が含まれるため、必ず `.gitignore` に追加してください：
 
-`.env` ファイルに値を入力したら（およびCodex認証後）、Claude Codeを再起動してMCPサーバーをロードします。
+```bash
+echo ".env" >> .gitignore
+```
 
-### ステップ8: 動作確認
+### ステップ4: Claude Codeを再起動
+
+`.env` ファイルに値を入力したら、Claude Codeを再起動してMCPサーバーをロードします。
+
+### ステップ5: 動作確認
 
 以下を確認してください：
 
@@ -207,7 +146,7 @@ printenv OPENAI_API_KEY | codex login --with-api-key
      - `mcp__awslabs_aws-documentation-mcp-server__*`
      - `mcp__mcp-server-bigquery__*` (BigQuery設定時)
      - `mcp__dbhub__*` (DBHub設定時)
-     - `mcp__chrome-devtools-mcp__*` (Chrome DevTools設定時)
+     - `mcp__chrome-devtools-mcp__*`
      - `mcp__codex__*` (Codex CLI設定時)
 
 2. **Serena MCPの初期化（初回のみ）**
@@ -223,13 +162,11 @@ printenv OPENAI_API_KEY | codex login --with-api-key
 
 ## 特徴
 
-- ✅ **自動セットアップ**: スキルが`.mcp.json`と`.env`テンプレートを自動作成
-- ✅ **スマートマージ**: 既存の設定がある場合、不足分のみを追加（上書きなし）
-- ✅ **セキュリティ保護**: `.env`を自動的に`.gitignore`に追加
-- ✅ **対話的な案内**: 環境変数の設定を分かりやすく説明
-- ✅ **前提条件の確認**: Python、uvxの有無を自動チェック
-- ✅ **カスタマイズ可能**: 不要なMCPサーバーを無効化可能
-- ✅ **詳細ドキュメント**: 各MCPの使い方と認証方法を完備
+- ✅ **自動統合**: プラグインインストール時にMCPサーバーが自動登録
+- ✅ **簡単セットアップ**: `.env`ファイルを作成するだけ
+- ✅ **包括的**: 8つの強力なMCPサーバーを一括提供
+- ✅ **カスタマイズ可能**: 不要なMCPサーバーは無効化可能
+- ✅ **セキュア**: 環境変数で認証情報を管理
 
 ## 含まれるMCPサーバー
 
@@ -343,50 +280,19 @@ ChromeブラウザをAIエージェントが制御・検査。
 - アーキテクチャ設計相談
 - コードレビューの自動化
 
-**認証:** 必須（以下のいずれか）
+**認証:** 必須（ChatGPTログインまたはAPIキー）
 
-**認証方法1: ChatGPTでログイン（推奨）**
-```bash
-codex login
-```
-- ChatGPT Plus/Pro/Team/Edu/Enterpriseプラン利用者向け
-- ブラウザで認証（localhost:1455）
-- 認証情報は`~/.codex/auth.json`に保存
-
-**認証方法2: APIキーでログイン**
-```bash
-# 環境変数から
-printenv OPENAI_API_KEY | codex login --with-api-key
-
-# またはファイルから
-codex login --with-api-key < my_key.txt
-```
-- 従量課金（pay-as-you-go）利用者向け
-- OpenAI APIキーが必要
-- セキュリティ上、`--with-api-key`フラグを使用（シェル履歴に残らない）
-
-**公式ドキュメント:**
-- https://github.com/openai/codex
-- https://github.com/openai/codex/blob/main/docs/authentication.md
+**公式ドキュメント:** https://github.com/openai/codex
 
 ## 利用方法
 
-セットアップが完了したら（[インストール手順](#インストール)を参照）、以下のようにMCPサーバーを利用できます。
+セットアップが完了したら、Claude Codeで自然言語でリクエストするだけです：
 
-### 基本的な使い方
+```
+このリポジトリのオープンなPRを確認して
+```
 
-1. **Claude Codeで自然言語でリクエスト**
-   ```
-   このリポジトリのオープンなPRを確認して
-   ```
-
-2. **MCPツールが自動的に利用される**
-   - Claude Codeが適切なMCPツールを選択
-   - GitHub MCP、Serena MCP等が裏側で動作
-
-### 手動でMCPツールを呼び出す
-
-特定のMCPツールを直接呼び出すこともできます（[使用例](#使用例)を参照）。
+Claude Codeが自動的に適切なMCPツール（GitHub MCP、Serena MCP等）を選択・利用します。
 
 ## 開発ワークフローコマンド
 
@@ -405,177 +311,34 @@ GitHub開発フロー（PR作成、レビュー、マージ等）を効率化す
 /plugin install workflow-commands@ai-agent-marketplace
 ```
 
-## 使用例
+## MCPサーバーの有効化・無効化
 
-### GitHub MCP
+特定のMCPサーバーを無効化したい場合は、Claude Codeの設定から管理できます：
 
-```python
-# オープンなPRをリスト
-mcp__github__list_pull_requests(
-    owner="username",
-    repo="repository",
-    state="open"
-)
-
-# イシューを作成
-mcp__github__issue_write(
-    method="create",
-    owner="username",
-    repo="repository",
-    title="新機能リクエスト",
-    body="説明をここに記載"
-)
-
-# コード検索
-mcp__github__search_code(
-    query="function calculateScore language:python"
-)
+```bash
+/mcp
 ```
 
-### Serena MCP
+または、プロジェクトルートの `.mcp.json` を直接編集して `"disabled": true` を追加：
 
-```python
-# プロジェクト概要を取得
-mcp__serena__get_symbols_overview(
-    relative_path="src/main.py"
-)
-
-# シンボルを検索
-mcp__serena__find_symbol(
-    name_path="MyClass/my_method",
-    relative_path="src/main.py",
-    include_body=True
-)
-
-# シンボル本体を置き換え
-mcp__serena__replace_symbol_body(
-    name_path="MyClass/my_method",
-    relative_path="src/main.py",
-    body="def my_method(self):\n    return 'new implementation'"
-)
-
-# リファレンスを検索
-mcp__serena__find_referencing_symbols(
-    name_path="my_function",
-    relative_path="src/utils.py"
-)
-```
-
-### Notion MCP
-
-```python
-# ページを検索
-mcp__notion__search_pages(
-    query="プロジェクト仕様"
-)
-
-# ページを作成
-mcp__notion__create_page(
-    parent_id="database_id",
-    title="新しいタスク",
-    properties={...}
-)
-```
-
-### BigQuery MCP
-
-```python
-# クエリを実行
-mcp__mcp-server-bigquery__query(
-    sql="SELECT * FROM `project.dataset.table` LIMIT 10"
-)
-
-# テーブル情報を取得
-mcp__mcp-server-bigquery__get_table(
-    project_id="my-project",
-    dataset_id="my-dataset",
-    table_id="my-table"
-)
-```
-
-### AWS Documentation MCP
-
-```python
-# ドキュメントを検索
-mcp__awslabs_aws-documentation-mcp-server__search_documentation(
-    search_phrase="S3 bucket policy"
-)
-
-# ドキュメントを読む
-mcp__awslabs_aws-documentation-mcp-server__read_documentation(
-    url="https://docs.aws.amazon.com/..."
-)
-```
-
-### DBHub MCP
-
-```python
-# スキーマを探索
-mcp__dbhub__get_schemas()
-
-# テーブル一覧を取得
-mcp__dbhub__get_tables(schema="public")
-
-# SQLクエリを実行
-mcp__dbhub__execute_query(
-    query="SELECT * FROM users WHERE id = 1"
-)
-
-# AI支援SQL生成
-mcp__dbhub__generate_sql(
-    prompt="最近1週間のアクティブユーザーを取得"
-)
-```
-
-### Chrome DevTools MCP
-
-```python
-# 新しいページを開く
-mcp__chrome-devtools-mcp__navigate_page(
-    url="https://example.com"
-)
-
-# 要素をクリック
-mcp__chrome-devtools-mcp__click(
-    selector="#submit-button"
-)
-
-# フォームに入力
-mcp__chrome-devtools-mcp__fill_form(
-    selector="#search-input",
-    value="検索キーワード"
-)
-
-# スクリーンショットを撮る
-mcp__chrome-devtools-mcp__take_screenshot()
-
-# パフォーマンス分析を開始
-mcp__chrome-devtools-mcp__performance_start_trace()
-
-# パフォーマンス分析を停止して結果取得
-mcp__chrome-devtools-mcp__performance_stop_trace()
-```
-
-### Codex CLI MCP
-
-```python
-# コードベースを分析
-# Codex CLI MCPは自然言語でコード分析を依頼できます
-
-# 例：「現在のコードベースを分析して、改善点を特定してください」
-# 例：「このファイルのパフォーマンス最適化の提案をしてください」
-# 例：「セキュリティ脆弱性をスキャンしてください」
-# 例：「アーキテクチャの改善点を教えてください」
-
-# Codex CLI MCPは対話的に機能し、具体的なツール呼び出しは
-# Claude Codeが自動的に選択します
+```json
+{
+  "mcpServers": {
+    "mcp-server-bigquery": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["mcp-server-bigquery@latest"],
+      "disabled": true
+    }
+  }
+}
 ```
 
 ## トラブルシューティング
 
 ### MCPサーバーが起動しない
 
-1. `.mcp.json` のJSON構文を確認
+1. `.env` ファイルがプロジェクトルートに存在するか確認
 2. 環境変数が正しく設定されているか確認: `echo $GITHUB_PERSONAL_ACCESS_TOKEN`
 3. Claude Codeを完全に再起動
 4. ログを確認（Claude Codeの設定から）
@@ -600,18 +363,11 @@ mcp__chrome-devtools-mcp__performance_stop_trace()
 - データベース接続文字列（DSN）が正しいか確認
 - データベースサーバーが起動しているか確認
 - ユーザー名とパスワードが正しいか確認
-- ネットワーク接続を確認（ファイアウォール等）
-
-**Chrome DevTools:**
-- Chromeブラウザがインストールされているか確認
-- Node.jsがインストールされているか確認
-- ヘッドレスモードで問題がある場合は通常モードを試す
 
 **Codex CLI:**
 - Codex CLIがインストールされているか確認（`codex --version`）
-- Codex CLIがシステムPATHに含まれているか確認
 - `codex mcp-server`コマンドが正常に実行できるか確認
-- Claude Codeを再起動
+- 認証済みか確認（`codex login`）
 
 ### Serena MCPが動作しない
 
@@ -629,8 +385,8 @@ pip install --upgrade uv
 ### ツールが表示されない
 
 1. Claude Codeを再起動
-2. `.mcp.json` がプロジェクトルートにあるか確認
-3. JSONファイルの構文エラーがないか確認
+2. `.env` ファイルがプロジェクトルートにあるか確認
+3. 環境変数が正しく設定されているか確認
 4. MCP設定が正しくロードされているか、Claude Codeのログで確認
 
 ## セキュリティのベストプラクティス
@@ -641,13 +397,6 @@ pip install --upgrade uv
 - ✅ トークンを定期的にローテーション
 - ❌ トークンをコードやドキュメントにコミットしない
 - ❌ 本物に見えるトークン例を使用しない
-
-## 詳細ドキュメント
-
-- [SKILL.md](./skills/mcp-integration/SKILL.md) - スキル概要
-- [mcp-setup-guide.md](./skills/mcp-integration/mcp-setup-guide.md) - 詳細セットアップ手順
-- [mcp-config-template.md](./skills/mcp-integration/mcp-config-template.md) - 完全な `.mcp.json` テンプレート
-- [mcp-authentication-guide.md](./skills/mcp-integration/mcp-authentication-guide.md) - 認証情報取得ガイド
 
 ## サポート
 

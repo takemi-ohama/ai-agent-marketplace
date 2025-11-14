@@ -8,7 +8,7 @@
     {
       "name": "mcp-integration",
       "source": "./plugins/mcp-integration",
-      "description": "Project skill for integrating GitHub, Serena, BigQuery, and Notion MCPs with slash commands for development workflow"
+      "description": "Automatically integrates 8 powerful MCP servers (GitHub, Serena, BigQuery, Notion, DBHub, Chrome DevTools, AWS Docs, Codex CLI) into Claude Code projects"
     },
     {
       "name": "install-slack-hook",
