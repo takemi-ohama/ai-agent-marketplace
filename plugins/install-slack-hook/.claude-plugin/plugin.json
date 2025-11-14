@@ -1,0 +1,9 @@
+{
+  "name": "install-slack-hook",
+  "version": "1.0.1",
+  "description": "Install Slack notification hook and script for Claude Code work completion alerts",
+  "author": {
+    "name": "takemi-ohama",
+    "url": "https://github.com/takemi-ohama"
+  }
+}

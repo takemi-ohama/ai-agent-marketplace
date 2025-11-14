@@ -11,9 +11,9 @@
       "description": "Project skill for integrating GitHub, Serena, BigQuery, and Notion MCPs with slash commands for development workflow"
     },
     {
-      "name": "slack-notification",
-      "source": "./plugins/slack-notification",
-      "description": "Automatic Slack notifications when Claude Code work is completed with Japanese work summary"
+      "name": "install-slack-hook",
+      "source": "./plugins/install-slack-hook",
+      "description": "Install Slack notification hook and script for Claude Code work completion alerts"
     },
     {
       "name": "workflow-commands",

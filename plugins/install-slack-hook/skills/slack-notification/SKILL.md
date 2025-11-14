@@ -1,86 +1,74 @@
 ---
-name: Slack Notification Hook
-description: Automatically send Slack notifications when Claude Code work is completed with repository name and work summary in Japanese
-activatesOn:
-  - stopHook
+name: Install Slack Hook
+description: Install Slack notification hook and script to send automatic work completion alerts to Slack with AI-generated Japanese summaries
 ---
 
-# Slack Notification Hook
+# Install Slack Hook
 
-This skill automatically sends Slack notifications when Claude Code exits, analyzing the session's work and generating an intelligent Japanese summary.
+This skill installs `.claude/settings.json` and `.claude/slack-notify.sh` to enable automatic Slack notifications when Claude Code exits.
 
-## Automatic Execution
+## What This Skill Does
 
-**IMPORTANT**: This skill is automatically invoked when Claude Code exits via the `stopHook`. When activated:
+When invoked, this skill installs the Slack notification system into your project:
 
-1. **Analyze the Session**: Review conversation history, tool calls, and git changes to understand what work was completed
-2. **Generate Japanese Summary**: Create a concise, meaningful summary in Japanese (max 100 characters)
-3. **Send Notification**: Execute `.claude/slack-notify.sh complete "<work_summary>"`
+1. **Installs `.claude/settings.json`**: Configures a Stop hook with prompt type
+2. **Installs `.claude/slack-notify.sh`**: Shell script that sends Slack notifications
+3. **Provides setup guidance**: Explains how to configure environment variables
 
-### Summary Generation Guidelines
+## How the Installed Hook Works
 
-When generating the work summary, follow these rules:
+After installation, the hook operates as follows:
+
+1. **Claude Code exits** → Stop hook triggers
+2. **Prompt hook evaluates** → AI analyzes the session
+3. **AI generates summary** → Creates 40-character Japanese summary
+4. **Bash tool executes** → Runs `.claude/slack-notify.sh complete "summary"`
+5. **Slack notification sent** → Message posted to configured channel
+
+## Summary Generation Guidelines (for the prompt hook)
+
+The prompt hook that gets installed will generate summaries following these rules:
 
 **DO:**
-- Be specific about what was accomplished (e.g., "PRレビュー対応でセキュリティ脆弱性を3件修正")
-- Include file names for significant changes (e.g., "README.mdを日本語化")
-- Mention key actions (修正, 追加, 削除, 更新, リファクタリング, レビュー対応)
-- Keep it under 100 characters in Japanese
+- Be specific about what was accomplished (e.g., "PRレビュー対応でセキュリティ修正")
+- Include file names for significant changes (e.g., "README日本語化")
+- Mention key actions (修正, 追加, 削除, 更新)
+- Keep it under 40 characters in Japanese
 - Use natural Japanese phrasing
 
 **DON'T:**
 - Use vague descriptions (e.g., "ファイルを更新")
-- Include technical jargon unnecessarily
+- Include unnecessary details
 - List every single file changed
-- Exceed character limit
+- Exceed 40-character limit
 
-**Examples:**
-- Good: "mcp-integrationにスラッシュコマンド6種を追加（PR, fix, review等）"
+**Examples (40 characters or less):**
+- Good: "MCPプラグインにコマンド6種追加"
 - Bad: "いくつかのファイルを更新しました"
-- Good: "Slack通知プラグインのREADMEを日本語化、.env対応を追加"
+- Good: "README日本語化と.env対応追加"
 - Bad: "ドキュメント作業"
-- Good: "セキュリティ脆弱性3件修正（認証情報の例をプレースホルダー化）"
+- Good: "セキュリティ修正3件対応"
 - Bad: "修正対応"
 
-### Implementation Steps
+## Technical Details
 
-When this skill is triggered by stopHook:
+### Installed Hook Configuration
 
-1. **Gather Context**
-   ```bash
-   # Check recent git changes
-   git log -1 --oneline
-   git diff HEAD~1..HEAD --stat
-   git status
-   ```
+The `.claude/settings.json` contains:
 
-2. **Analyze Conversation History**
-   - Review tool calls made during the session
-   - Identify main tasks completed
-   - Note significant accomplishments
+```json
+{
+  "type": "prompt",
+  "prompt": "このセッションで完了した作業の要約を40文字以内の日本語で作成してください。その後、Bashツールを使って以下のコマンドを実行してください：dir=$(pwd); while [ \"$dir\" != \"/\" ] && [ ! -d \"$dir/.claude\" ]; do dir=$(dirname \"$dir\"); done; if [ -d \"$dir/.claude\" ]; then cd \"$dir\" && .claude/slack-notify.sh complete \"作成した要約\"; fi"
+}
+```
 
-3. **Generate Summary**
-   - Synthesize the information into a concise Japanese summary
-   - Focus on user-facing outcomes, not internal implementation details
-   - Example logic:
-     ```
-     If PR was created → "PRを作成: [title summary]"
-     If files were modified → "[main file]等[N]件のファイルを[action]"
-     If code review → "レビュー対応: [main issue]を修正"
-     If documentation → "[file]を[action]"
-     ```
+### How It Works
 
-4. **Execute Notification**
-   ```bash
-   .claude/slack-notify.sh complete "生成した作業要約"
-   ```
-
-### Error Handling
-
-If notification script is not found or fails:
-- Log error silently (don't disrupt user workflow)
-- Exit gracefully with status 0
-- Don't show error messages to user unless debugging
+1. **Prompt evaluation**: AI analyzes session and generates 40-char Japanese summary
+2. **Directory search**: Searches for `.claude` directory upwards from current location (monorepo compatible)
+3. **Script execution**: Executes `.claude/slack-notify.sh complete "summary"`
+4. **Slack notification**: Script sends notification to configured channel
 
 ---
 
