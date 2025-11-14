@@ -101,20 +101,34 @@ export SLACK_USER_MENTION="<@U0123456789>"
 source ~/.bashrc  # または ~/.zshrc
 ```
 
-**注意事項:**
-- ✅ 環境変数はシェル設定ファイルに追加
+**⚠️ セキュリティ注意事項:**
+- ✅ 環境変数はシェル設定ファイル（`~/.bashrc`, `~/.zshrc`）に追加
 - ✅ トークンの値は引用符で囲む
 - ✅ `SLACK_USER_MENTION`は`<@...>`形式
-- ❌ トークンをGitにコミットしない
+- ❌ **絶対に**トークンをGitにコミットしない
+- ❌ **絶対に**トークンをコードやドキュメントに記載しない
+- ❌ **絶対に**トークンをスクリーンショットや画面共有で公開しない
+- ⚠️ トークンは実際のトークン値に置き換えてください（`xoxb-your-bot-token-here`は例です）
+- ⚠️ トークンが漏洩した場合は、即座にSlack Appの設定でトークンをリボーク（無効化）してください
 
 ### ステップ5: 動作確認
 
-テスト通知を送信して設定を確認：
+プラグインをインストールした後、Claude Codeを一度終了して動作確認します。
 
+**自動テスト（推奨）:**
 ```bash
-# プロジェクトルートで実行
-# プラグインをインストールしたClaude Codeプロジェクトで
-bash ~/.claude/plugins/install-slack-hook/scripts/slack-notify.sh complete
+# Claude Codeでなにか作業を行い、終了するだけ
+# 自動的にSlack通知が送信されます
+```
+
+**手動テスト（任意）:**
+スクリプトを直接実行する場合：
+```bash
+# プラグインのスクリプトパスを確認
+find ~/.claude/plugins -name "slack-notify.sh" -type f
+
+# 見つかったパスを使って実行
+bash <見つかったパス> complete "テスト通知"
 ```
 
 成功すると、Slackチャンネルに通知が届きます：
@@ -241,14 +255,17 @@ fi
 
 ### 手動実行
 
-スクリプトを直接実行してテスト：
+スクリプトを直接実行してテストする場合：
 
 ```bash
+# プラグインのインストール先を確認
+PLUGIN_PATH=$(find ~/.claude/plugins -name "install-slack-hook" -type d | head -1)
+
 # 基本的なテスト（自動要約）
-bash ~/.claude/plugins/install-slack-hook/scripts/slack-notify.sh complete
+bash "${PLUGIN_PATH}/scripts/slack-notify.sh" complete
 
 # カスタム要約を指定
-bash ~/.claude/plugins/install-slack-hook/scripts/slack-notify.sh complete "READMEファイルを更新"
+bash "${PLUGIN_PATH}/scripts/slack-notify.sh" complete "READMEファイルを更新"
 ```
 
 ### スクリプトの引数
@@ -312,12 +329,14 @@ export SLACK_USER_MENTION="<@U0123456789>"
 
 **スクリプトの実行権限を確認：**
 ```bash
-ls -la ~/.claude/plugins/install-slack-hook/scripts/slack-notify.sh
+# プラグインパスを探す
+PLUGIN_PATH=$(find ~/.claude/plugins -name "install-slack-hook" -type d | head -1)
+ls -la "${PLUGIN_PATH}/scripts/slack-notify.sh"
 ```
 
 実行権限がない場合は追加：
 ```bash
-chmod +x ~/.claude/plugins/install-slack-hook/scripts/slack-notify.sh
+chmod +x "${PLUGIN_PATH}/scripts/slack-notify.sh"
 ```
 
 **git リポジトリ確認：**
@@ -345,11 +364,50 @@ sudo apt-get install curl
 
 ## セキュリティのベストプラクティス
 
-- ✅ 環境変数でトークンを管理
-- ✅ トークンをコードやドキュメントにコミットしない
-- ✅ 必要最小限のBotスコープを使用（`chat:write`のみ）
-- ✅ トークンを定期的にローテーション
-- ❌ スクリプト内にトークンをハードコードしない
+### トークン管理
+
+**必須:**
+- ✅ **環境変数でトークンを管理**（シェル設定ファイルに記載）
+- ✅ **必要最小限のBotスコープ**を使用（`chat:write`のみ、`channels:read`は任意）
+- ✅ **トークンを定期的にローテーション**（推奨: 3-6ヶ月ごと）
+- ❌ **絶対に**スクリプト内にトークンをハードコードしない
+- ❌ **絶対に**トークンをGitリポジトリにコミットしない
+- ❌ **絶対に**トークンをドキュメントやコメントに記載しない
+
+### トークン漏洩時の対応
+
+万が一トークンが漏洩した場合、**即座に**以下を実行してください：
+
+1. **トークンを無効化**
+   - https://api.slack.com/apps にアクセス
+   - 対象のアプリを選択
+   - "OAuth & Permissions" → "Revoke" ボタンをクリック
+
+2. **新しいトークンを発行**
+   - "Reinstall to Workspace" で再インストール
+   - 新しいトークンを環境変数に設定
+
+3. **影響範囲を確認**
+   - Slackのアクセスログを確認
+   - 不審なメッセージ投稿がないか確認
+
+### ファイルパーミッション
+
+シェル設定ファイルの権限を適切に設定：
+
+```bash
+# ~/.bashrc または ~/.zshrc の権限を確認
+ls -la ~/.bashrc
+
+# 他のユーザーが読めないように設定
+chmod 600 ~/.bashrc
+```
+
+### 共有環境での注意
+
+- 共有サーバーでは個人用トークンを使用
+- チーム用トークンは専用のサービスアカウントで管理
+- トークンをログに出力しない（スクリプトは既に対策済み）
 
 ## プラグインのアンインストール
 
