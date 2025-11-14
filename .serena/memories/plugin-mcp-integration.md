@@ -10,17 +10,16 @@
 
 ## 概要
 
-Claude Codeプロジェクトに複数のMCP（Model Context Protocol）サーバーを自動セットアップするためのプロジェクトスキル。
+Claude Codeプロジェクトに複数のMCP（Model Context Protocol）サーバーを自動統合するプラグイン。
 
-**重要**: このスキルは、ユーザーが「MCPサーバーをセットアップして」と言うだけで、自動的に`.mcp.json`と`.env`テンプレートをプロジェクトルートに作成します。ユーザーが手動で作成する必要はありません。
+**重要**: このプラグインは、インストール時に自動的にMCPサーバーを登録します。`.mcp.json`ファイルはプラグイン内に定義されており、ユーザーは`.env`ファイルを作成するだけで利用可能です。
 
-**スマートマージ機能**: 既に`.mcp.json`や`.env`が存在する場合、既存の設定や認証情報を保持したまま、不足している設定だけを追加します。
+**バージョン2.0の変更点**: 
+- プラグイン内に`.mcp.json`を直接定義（スキル経由不要）
+- プラグインインストール時にMCPサーバーが自動で有効化
+- skillsディレクトリは削除済み
 
-- `.mcp.json`: 存在しないMCPサーバーのみを追加
-- `.env`: 存在しない環境変数のみを追加（既存の値は保持）
-- カスタム設定も保持されます
-
-GitHub、Serena、BigQuery、Notion、DBHub、Chrome DevToolsとの統合を提供。
+GitHub、Serena、BigQuery、Notion、DBHub、Chrome DevTools、Codex CLIとの統合を提供。
 
 ## 含まれるMCPサーバー
 
@@ -66,112 +65,52 @@ GitHub、Serena、BigQuery、Notion、DBHub、Chrome DevToolsとの統合を提�
 plugins/mcp-integration/
 ├── .claude-plugin/
 │   └── plugin.json                    # プラグインメタデータ
-├── commands/                          # スラッシュコマンド
-│   ├── serena.md                      # 開発の記憶と知見の記録
-│   ├── pr.md                          # PR作成
-│   ├── fix.md                         # PR修正対応
-│   ├── review.md                      # PRレビュー
-│   ├── merge.md                       # マージ後クリーンアップ
-│   └── clean.md                       # ブランチクリーンアップ
-├── README.md                          # ユーザー向けドキュメント
-└── skills/
-    └── mcp-integration/
-        ├── SKILL.md                   # スキルエントリポイント
-        ├── mcp-config-template.md     # 完全な.mcp.json設定テンプレート
-        ├── mcp-setup-guide.md         # ステップバイステップセットアップ手順
-        └── mcp-authentication-guide.md # トークンセットアップ手順
+├── .mcp.json                          # MCPサーバー定義（自動統合）
+└── README.md                          # ユーザー向けドキュメント
 ```
 
-## スキルの起動条件
+**v2.0の簡略化**: skillsディレクトリとcommandsディレクトリは削除されました。MCPサーバーはプラグイン内の`.mcp.json`で直接定義されます。
 
-以下のキーワードでスキルが自動起動：
-- "MCPサーバーをセットアップ"
-- "GitHub/BigQuery/Notionをインテグレート"
-- "コード分析を有効化"
-- "Serenaを設定"
-
-手動起動:
-```
-@mcp-integration-skill MCPのセットアップを手伝って
-```
-
-## セットアップステップ（自動）
+## セットアップステップ（v2.0）
 
 1. **プラグインをインストール**: `/plugin install mcp-integration@ai-agent-marketplace`
-2. **スキルを起動**: 「MCPサーバーをセットアップして」と依頼
-3. **スキルが自動実行**:
-   - `.mcp.json`をプロジェクトルートに自動作成（全MCPサーバーに`envFile`設定を含む）
-   - `.env`テンプレートを自動作成（変数名のみ、値は空）
-   - `.env`を`.gitignore`に自動追加
-   - 前提条件（Python、uvx）を確認
-4. **`.env`ファイルに値を入力**: スキルが作成したテンプレートを開いて値を入力
+2. **MCPサーバーが自動で有効化**: プラグイン内の`.mcp.json`により、すべてのMCPサーバーが自動登録される
+3. **`.env`ファイルを作成**: プロジェクトルートに`.env`ファイルを作成し、必要な認証情報を入力
    ```
    GITHUB_PERSONAL_ACCESS_TOKEN=ghp_your_actual_token
    NOTION_API_KEY=secret_your_actual_token  # オプション
    GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json  # オプション
+   DATABASE_DSN=postgres://user:password@localhost:5432/db  # オプション
+   ```
+4. **`.env`を`.gitignore`に追加**: セキュリティのため
+   ```bash
+   echo ".env" >> .gitignore
    ```
 5. **Claude Codeを再起動**: MCPサーバーをロード
 6. **確認**: 利用可能なツールをチェック
 
-**スキルが自動化する内容:**
-- ✅ `.mcp.json`作成または更新（既存ファイルがある場合は不足しているMCPサーバーのみ追加）
-- ✅ `.env`テンプレート作成または更新（既存ファイルがある場合は不足している変数のみ追加）
-- ✅ `.gitignore`への`.env`追加
-- ✅ スマートマージ：既存の設定や認証情報は保持される
-- ⏭️ ユーザーは`.env`の空欄に値を入力するだけ
+**v2.0での変更点:**
+- ✅ プラグインインストール時にMCPサーバーが自動登録
+- ✅ スキル経由不要（`.mcp.json`はプラグイン内に定義済み）
+- ✅ ユーザーは`.env`ファイルを作成するだけ
+- ✅ シンプルで直感的なセットアップ
 
-## スラッシュコマンド
+## 開発ワークフローコマンド
 
-プラグインには6つの開発ワークフローコマンドが含まれています：
+**v2.0の変更**: スラッシュコマンドは別プラグイン [workflow-commands](../workflow-commands) に分離されました。
 
-### 1. /serena - 開発の記憶と知見の記録
-- **目的**: AI Agentの操作履歴や失敗を記録し、再発防止
-- **実行内容**:
-  1. AI Agentの履歴から操作内容を収集
-  2. git logやファイル変更から知見を収集
-  3. Serena MCPに記憶
-  4. 既存記憶の確認・更新
-  5. CLAUDE.mdの更新日時を記録
+以下のコマンドを利用したい場合は、workflow-commandsプラグインをインストールしてください：
+- `/serena` - 開発の記憶と知見の記録
+- `/pr` - PR作成
+- `/fix` - PR修正対応
+- `/review` - PRレビュー
+- `/merge` - マージ後クリーンアップ
+- `/clean` - ブランチクリーンアップ
 
-### 2. /pr - PR作成
-- **目的**: 変更をコミット・プッシュし、PRを作成
-- **実行内容**:
-  1. 既存PRの確認（OPENなら追加コミットのみ）
-  2. ブランチ確認・切り替え（デフォルトブランチなら新規作成）
-  3. 変更をコミット（日本語メッセージ）
-  4. プッシュ
-  5. PR作成（日本語、Summary + Test plan）
-- **注意**: デフォルトブランチでの直接コミット禁止
-
-### 3. /fix - PR修正対応
-- **目的**: PRレビューコメントへの対応
-- **実行内容**:
-  1. レビューコメント確認
-  2. 問題点修正
-  3. コミット・プッシュ
-  4. Copilotにレビュー再依頼
-- **方針**: 指摘事項は修正前に仕様を調査し、実施可否を判断
-
-### 4. /review - PRレビュー
-- **目的**: 直前PRの専門的レビュー
-- **観点**: コード品質、セキュリティ、可読性、保守性、テストカバレッジ
-- **結果**: 「Request Changes」または「Approve」
-
-### 5. /merge - マージ後クリーンアップ
-- **目的**: PRマージ後のブランチクリーンアップ
-- **実行内容**:
-  1. PRのマージ確認
-  2. 変更をstash
-  3. mainブランチ更新
-  4. フィーチャーブランチ削除（ローカル・リモート）
-  5. stash復元
-
-### 6. /clean - ブランチクリーンアップ
-- **目的**: mainマージ済みブランチの削除
-- **実行内容**:
-  1. `git branch --merged main`で確認
-  2. main・現在ブランチを除外
-  3. マージ済みブランチ削除（ローカル・リモート）
+**インストール方法：**
+```bash
+/plugin install workflow-commands@ai-agent-marketplace
+```
 
 ## 必要な環境変数
 
@@ -275,7 +214,6 @@ export DATABASE_DSN="postgres://user:password@localhost:5432/dbname?sslmode=disa
 ## ドキュメントリファレンス
 
 - **README.md**: ユーザー向けメインドキュメント（インストール、環境変数、利用方法）
-- **SKILL.md**: スキル概要と起動条件
-- **mcp-setup-guide.md**: 詳細セットアップ手順
-- **mcp-config-template.md**: 完全な`.mcp.json`テンプレート
-- **mcp-authentication-guide.md**: 認証情報取得手順
+- **.mcp.json**: MCPサーバー定義（プラグイン内に含まれる）
+
+**v2.0の簡略化**: skillsディレクトリは削除されました。すべての情報はREADME.mdに統合されています。
