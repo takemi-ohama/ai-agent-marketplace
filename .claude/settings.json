@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'cd \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\" && if [ -f .claude/slack-notify.sh ]; then .claude/slack-notify.sh complete; fi'"
+          }
+        ]
+      }
+    ]
+  }
+}
