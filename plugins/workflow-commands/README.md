@@ -1,4 +1,4 @@
-# Development Workflow Commands Plugin
+# Workflow Commands Plugin
 
 GitHub開発ワークフローを効率化する6つのスラッシュコマンドを提供するClaude Codeプラグインです。
 
@@ -24,7 +24,7 @@ GitHub開発ワークフローを効率化する6つのスラッシュコマン�
 
 ```bash
 # Claude Codeで実行
-/plugin install development-workflow-commands@ai-agent-marketplace
+/plugin install workflow-commands@ai-agent-marketplace
 ```
 
 ## 含まれるコマンド

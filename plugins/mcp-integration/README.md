@@ -390,7 +390,7 @@ codex login --with-api-key < my_key.txt
 
 ## 開発ワークフローコマンド
 
-GitHub開発フロー（PR作成、レビュー、マージ等）を効率化するスラッシュコマンドは、別プラグイン [**development-workflow-commands**](../development-workflow-commands) として提供されています。
+GitHub開発フロー（PR作成、レビュー、マージ等）を効率化するスラッシュコマンドは、別プラグイン [**workflow-commands**](../workflow-commands) として提供されています。
 
 以下のコマンドを利用したい場合は、そちらのプラグインも併せてインストールしてください：
 - `/serena` - 開発の記憶と知見の記録
@@ -402,7 +402,7 @@ GitHub開発フロー（PR作成、レビュー、マージ等）を効率化す
 
 **インストール方法：**
 ```bash
-/plugin install development-workflow-commands@ai-agent-marketplace
+/plugin install workflow-commands@ai-agent-marketplace
 ```
 
 ## 使用例

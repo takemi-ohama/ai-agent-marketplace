@@ -1,5 +1,5 @@
 {
-  "name": "development-workflow-commands",
+  "name": "workflow-commands",
   "version": "1.0.0",
   "description": "GitHub development workflow commands for PR creation, review, merge, and branch cleanup",
   "author": {
