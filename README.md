@@ -32,7 +32,7 @@ Claude Codeでマーケットプレイスを追加します：
 
 | プラグイン名 | バージョン | 説明 | 詳細 |
 |------------|----------|------|------|
-| **mcp-integration** | 1.0.0 | GitHub、Serena、Notion、BigQuery、DBHub、Chrome DevTools、AWS DocumentationのMCPサーバーを自動セットアップ。開発ワークフロー用の6つのスラッシュコマンド（`/pr`, `/fix`, `/review`, `/merge`, `/clean`, `/serena`）を含む。 | [README](./plugins/mcp-integration/README.md) |
+| **mcp-integration** | 1.1.0 | GitHub、Serena、Notion、BigQuery、DBHub、Chrome DevTools、Codex CLI、AWS DocumentationのMCPサーバーを自動セットアップ。開発ワークフロー用の6つのスラッシュコマンド（`/pr`, `/fix`, `/review`, `/merge`, `/clean`, `/serena`）を含む。 | [README](./plugins/mcp-integration/README.md) |
 | **slack-notification** | 1.0.0 | Claude Code作業完了時に自動的にSlack通知を送信。git変更から日本語要約を自動生成し、スマート通知で音を鳴らしながらチャンネルをクリーンに保つ。 | [README](./plugins/slack-notification/README.md) |
 
 ## 開発ガイドライン

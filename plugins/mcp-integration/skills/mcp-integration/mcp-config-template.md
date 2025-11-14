@@ -75,6 +75,14 @@ Create a `.mcp.json` file in your project root with this configuration:
       ],
       "envFile": "${workspaceFolder}/.env",
       "disabled": false
+    },
+    "codex": {
+      "command": "codex",
+      "args": [
+        "mcp-server"
+      ],
+      "envFile": "${workspaceFolder}/.env",
+      "disabled": false
     }
   }
 }
@@ -100,6 +108,11 @@ GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account-key.json
 # MySQL: mysql://user:password@localhost:3306/dbname
 # SQLite: sqlite:///path/to/database.db
 DATABASE_DSN=
+
+# Codex CLI MCP (Optional - only if using Codex)
+# Codex CLI must be installed: See https://github.com/openai/codex
+# Authentication required: Run 'codex login' (ChatGPT) or 'printenv OPENAI_API_KEY | codex login --with-api-key'
+# Authentication is stored in ~/.codex/auth.json
 
 # Note: Serena MCP, AWS Documentation MCP, and Chrome DevTools MCP do not require authentication
 ```
@@ -158,6 +171,12 @@ echo ".env" >> .gitignore
 - **Authentication**: Not required (optional for remote connections)
 - **Tools**: Input automation (click, fill, drag), navigation, emulation, performance tracing, network monitoring, debugging
 - **Requirements**: Node.js (for npx), Chrome browser
+
+### Codex CLI MCP (Local)
+- **Purpose**: Code quality and architecture analysis, AI-powered code review and improvement suggestions
+- **Authentication**: Not required for local use
+- **Tools**: Code analysis, performance optimization suggestions, security vulnerability detection, architecture design consultation
+- **Requirements**: Codex CLI installed (See [Codex CLI releases](https://github.com/openai/codex/releases))
 
 ## Customization
 
@@ -223,3 +242,4 @@ After creating `.mcp.json` and `.env`:
    - `mcp__mcp-server-bigquery__*` (if BigQuery configured)
    - `mcp__dbhub__*` (if DBHub configured)
    - `mcp__chrome-devtools-mcp__*` (if Chrome DevTools configured)
+   - `mcp__codex__*` (if Codex CLI configured)

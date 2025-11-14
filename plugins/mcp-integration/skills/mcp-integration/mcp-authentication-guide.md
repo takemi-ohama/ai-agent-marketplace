@@ -236,6 +236,85 @@ For advanced use cases, you can:
 
 These are configured in `.mcp.json` args, not via authentication.
 
+## Codex CLI MCP
+
+### Requirements
+- Codex CLI installed on your system
+- OpenAI account (ChatGPT Plus/Pro/Team/Edu/Enterprise) OR OpenAI API key
+
+### Setup Steps
+
+**1. Install Codex CLI**
+
+Download and install from the official releases:
+https://github.com/openai/codex/releases
+
+For the latest Rust-based version:
+```bash
+# Follow installation instructions from the GitHub releases page
+# Example for macOS/Linux (adjust based on your platform):
+# curl -sSL https://github.com/openai/codex/releases/download/rust-v0.36.0/codex-<platform> -o codex
+# chmod +x codex
+# sudo mv codex /usr/local/bin/
+```
+
+**2. Verify Installation**
+```bash
+codex --version
+```
+
+**3. Authenticate (Choose one method)**
+
+**Method 1: ChatGPT Login (Recommended)**
+
+For users with ChatGPT Plus, Pro, Team, Edu, or Enterprise plans:
+
+```bash
+codex login
+```
+
+This will:
+- Start a local server on `localhost:1455`
+- Open your browser for authentication
+- Save credentials to `~/.codex/auth.json`
+
+**Method 2: API Key Login**
+
+For pay-as-you-go users with OpenAI API keys:
+
+```bash
+# From environment variable (recommended)
+printenv OPENAI_API_KEY | codex login --with-api-key
+
+# Or from file
+echo "your-api-key-here" > my_key.txt
+codex login --with-api-key < my_key.txt
+rm my_key.txt  # Clean up
+```
+
+**Important**: Use `--with-api-key` (not `--api-key`) to prevent the key from appearing in shell history or process listings.
+
+**Getting an OpenAI API Key:**
+1. Go to https://platform.openai.com/api-keys
+2. Create a new API key
+3. Ensure it has access to the Responses API
+
+**4. Test MCP Server**
+```bash
+codex mcp-server
+```
+This should start the Codex MCP server without errors.
+
+### Features
+- **Code Analysis**: Analyze code quality, architecture, and design patterns
+- **Performance Optimization**: Identify performance bottlenecks and suggest improvements
+- **Security Review**: Detect potential security vulnerabilities
+- **Architecture Consultation**: Get AI-powered advice on code structure and design
+
+### References
+- [Codex CLI GitHub](https://github.com/openai/codex)
+- [Codex CLI Advanced Features](https://github.com/openai/codex/blob/main/docs/advanced.md)
+
 ## Troubleshooting
 
 ### GitHub MCP Not Working
@@ -273,6 +352,15 @@ These are configured in `.mcp.json` args, not via authentication.
 - Ensure no other processes are using Chrome DevTools Protocol port
 - Try running in non-headless mode for debugging
 
+### Codex CLI MCP Issues
+- Verify Codex CLI is installed (`codex --version`)
+- **Authentication errors**: Run `codex login` or `codex login --with-api-key` first
+- Check authentication status: `cat ~/.codex/auth.json` (should exist after login)
+- Test MCP server: `codex mcp-server` (should start without errors)
+- Ensure Codex is in your system PATH
+- For API key users: Verify OPENAI_API_KEY environment variable is set
+- Restart Claude Code after authentication
+
 ## Environment Variable Summary
 
 **Using `.env` file (Recommended):**
@@ -291,6 +379,10 @@ GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account-key.json
 
 # DBHub MCP (Optional)
 DATABASE_DSN=postgres://user:password@localhost:5432/mydb?sslmode=disable
+
+# Codex CLI MCP (Required - authenticate before use)
+# Run either: codex login (ChatGPT) or printenv OPENAI_API_KEY | codex login --with-api-key
+# Authentication is stored in ~/.codex/auth.json
 
 # Note: Serena MCP, AWS Documentation MCP, and Chrome DevTools MCP do not require authentication
 ```
