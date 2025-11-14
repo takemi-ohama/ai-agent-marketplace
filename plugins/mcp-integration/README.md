@@ -19,6 +19,7 @@ Claude CodeプロジェクトでMCP（Model Context Protocol）サーバーを**
 - **BigQuery MCP**: データベースクエリとスキーマ管理
 - **DBHub MCP**: ユニバーサルデータベースゲートウェイ（PostgreSQL、MySQL...）
 - **Chrome DevTools MCP**: Chromeブラウザの自動化・デバッグ・パフォーマンス分析
+- **Codex CLI MCP**: コード品質とアーキテクチャ分析、AI支援コードレビュー
 
 ## インストール
 
@@ -28,6 +29,8 @@ Claude CodeプロジェクトでMCP（Model Context Protocol）サーバーを**
 - Python 3.10以上（Serena、BigQuery MCP用）
 - `uvx` がインストール済み（`pip install uv`）
 - Node.js（DBHub、Chrome DevTools MCP用）
+- Codex CLI（Codex CLI MCP用）- オプション
+  - ChatGPT Plus/Pro/Team/Edu/Enterprise OR OpenAI APIキー
 
 ### ステップ1: マーケットプレイスの追加
 
@@ -111,6 +114,10 @@ GOOGLE_APPLICATION_CREDENTIALS=
 # SQLite: sqlite:///path/to/database.db
 DATABASE_DSN=
 
+# Codex CLI MCP (Required - authenticate separately)
+# Run: codex login (ChatGPT) OR printenv OPENAI_API_KEY | codex login --with-api-key
+# Authentication is stored in ~/.codex/auth.json, not in .env file
+
 # Note: Serena MCP, AWS Documentation MCP, and Chrome DevTools MCP do not require authentication
 ```
 
@@ -169,11 +176,28 @@ DATABASE_DSN=postgres://myuser:mypassword@localhost:5432/mydb?sslmode=disable
 
 この設定により、`.env` ファイルは誤ってGitにコミットされません。
 
-### ステップ6: Claude Codeを再起動
+### ステップ6: Codex CLI認証（オプション - Codex使用時のみ）
 
-`.env` ファイルに値を入力したら、Claude Codeを再起動してMCPサーバーをロードします。
+Codex CLI MCPを使用する場合は、事前に認証が必要です。
 
-### ステップ7: 動作確認
+**方法1: ChatGPTログイン（推奨）**
+```bash
+codex login
+```
+ブラウザが開き、ChatGPTアカウントで認証します。
+
+**方法2: APIキーログイン**
+```bash
+printenv OPENAI_API_KEY | codex login --with-api-key
+```
+
+詳細は[認証ガイド](./skills/mcp-integration/mcp-authentication-guide.md#codex-cli-mcp)を参照してください。
+
+### ステップ7: Claude Codeを再起動
+
+`.env` ファイルに値を入力したら（およびCodex認証後）、Claude Codeを再起動してMCPサーバーをロードします。
+
+### ステップ8: 動作確認
 
 以下を確認してください：
 
@@ -186,6 +210,7 @@ DATABASE_DSN=postgres://myuser:mypassword@localhost:5432/mydb?sslmode=disable
      - `mcp__mcp-server-bigquery__*` (BigQuery設定時)
      - `mcp__dbhub__*` (DBHub設定時)
      - `mcp__chrome-devtools-mcp__*` (Chrome DevTools設定時)
+     - `mcp__codex__*` (Codex CLI設定時)
 
 2. **Serena MCPの初期化（初回のみ）**
    ```
@@ -310,6 +335,42 @@ ChromeブラウザをAIエージェントが制御・検査。
 **認証:** 不要（ローカル実行）
 
 **公式ドキュメント:** https://github.com/ChromeDevTools/chrome-devtools-mcp
+
+### 8. Codex CLI MCP (Local)
+コードベースの品質とアーキテクチャをAIで分析。
+
+**主な機能:**
+- コード品質・アーキテクチャ分析
+- パフォーマンス最適化の提案
+- セキュリティ脆弱性検出
+- アーキテクチャ設計相談
+- コードレビューの自動化
+
+**認証:** 必須（以下のいずれか）
+
+**認証方法1: ChatGPTでログイン（推奨）**
+```bash
+codex login
+```
+- ChatGPT Plus/Pro/Team/Edu/Enterpriseプラン利用者向け
+- ブラウザで認証（localhost:1455）
+- 認証情報は`~/.codex/auth.json`に保存
+
+**認証方法2: APIキーでログイン**
+```bash
+# 環境変数から
+printenv OPENAI_API_KEY | codex login --with-api-key
+
+# またはファイルから
+codex login --with-api-key < my_key.txt
+```
+- 従量課金（pay-as-you-go）利用者向け
+- OpenAI APIキーが必要
+- セキュリティ上、`--with-api-key`フラグを使用（シェル履歴に残らない）
+
+**公式ドキュメント:**
+- https://github.com/openai/codex
+- https://github.com/openai/codex/blob/main/docs/authentication.md
 
 ## 利用方法
 
@@ -555,6 +616,21 @@ mcp__chrome-devtools-mcp__performance_start_trace()
 mcp__chrome-devtools-mcp__performance_stop_trace()
 ```
 
+### Codex CLI MCP
+
+```python
+# コードベースを分析
+# Codex CLI MCPは自然言語でコード分析を依頼できます
+
+# 例：「現在のコードベースを分析して、改善点を特定してください」
+# 例：「このファイルのパフォーマンス最適化の提案をしてください」
+# 例：「セキュリティ脆弱性をスキャンしてください」
+# 例：「アーキテクチャの改善点を教えてください」
+
+# Codex CLI MCPは対話的に機能し、具体的なツール呼び出しは
+# Claude Codeが自動的に選択します
+```
+
 ## トラブルシューティング
 
 ### MCPサーバーが起動しない
@@ -590,6 +666,12 @@ mcp__chrome-devtools-mcp__performance_stop_trace()
 - Chromeブラウザがインストールされているか確認
 - Node.jsがインストールされているか確認
 - ヘッドレスモードで問題がある場合は通常モードを試す
+
+**Codex CLI:**
+- Codex CLIがインストールされているか確認（`codex --version`）
+- Codex CLIがシステムPATHに含まれているか確認
+- `codex mcp-server`コマンドが正常に実行できるか確認
+- Claude Codeを再起動
 
 ### Serena MCPが動作しない
 

@@ -1,6 +1,6 @@
 ---
 name: MCP Integration Setup
-description: Automatically set up GitHub, Serena, BigQuery, Notion, DBHub, and Chrome DevTools MCP servers for enhanced Claude Code capabilities including code analysis, data operations, database management, browser automation, and project management
+description: Automatically set up GitHub, Serena, BigQuery, Notion, DBHub, Chrome DevTools, and Codex CLI MCP servers for enhanced Claude Code capabilities including code analysis, data operations, database management, browser automation, AI-powered code review, and project management
 ---
 
 # MCP Integration Project Skill
@@ -14,6 +14,7 @@ This skill automatically sets up Model Context Protocol (MCP) servers in your Cl
 - **AWS Documentation MCP**: AWS service documentation access
 - **DBHub MCP**: Universal database gateway (PostgreSQL, MySQL, SQL Server, MariaDB, SQLite)
 - **Chrome DevTools MCP**: Browser automation, debugging, performance analysis
+- **Codex CLI MCP**: Code quality and architecture analysis, AI-powered code review
 
 **Smart Merge**: If you already have `.mcp.json` or `.env` files, this skill intelligently adds only the missing configurations while preserving your existing settings and credentials.
 
@@ -126,7 +127,7 @@ GOOGLE_APPLICATION_CREDENTIALS=
 # SQLite: sqlite:///PATH/TO/DATABASE.db
 DATABASE_DSN=
 
-# Note: Serena MCP, AWS Documentation MCP, and Chrome DevTools MCP do not require authentication
+# Note: Serena MCP, AWS Documentation MCP, Chrome DevTools MCP, and Codex CLI MCP do not require authentication
 ```
 
 **If `.env` already exists:**
