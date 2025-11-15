@@ -613,23 +613,7 @@ async function main() {
     process.exit(1);
   }
 
-  // Step 2: Wait for notification to be delivered, then delete the message
-  if (mentionResult && mentionResult.ts) {
-    logDebug(`Waiting 1 second before deleting mention message (ts: ${mentionResult.ts})`);
-    // Wait 1 second to ensure notification is delivered
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    logDebug('Deleting mention message');
-    try {
-      await deleteSlackMessage(channelId, token, mentionResult.ts);
-      logDebug('Mention message deleted successfully');
-    } catch (error) {
-      logDebug(`Failed to delete mention message: ${error.message}`);
-      // Continue even if deletion fails
-    }
-  }
-
-  // Step 3: Generate work summary
+  // Step 2: Generate work summary
   let workSummary = null;
 
   // Priority 1: Generate with Claude CLI (AI-powered)
@@ -659,6 +643,18 @@ async function main() {
   }
 
   logDebug(`Final work summary: ${workSummary || 'empty'}`);
+
+  // Step 3: Delete mention message (right before sending detailed message)
+  if (mentionResult && mentionResult.ts) {
+    logDebug(`Deleting mention message (ts: ${mentionResult.ts})`);
+    try {
+      await deleteSlackMessage(channelId, token, mentionResult.ts);
+      logDebug('Mention message deleted successfully');
+    } catch (error) {
+      logDebug(`Failed to delete mention message: ${error.message}`);
+      // Continue even if deletion fails
+    }
+  }
 
   // Step 4: Send detailed message with repository name and work summary
   const repoName = await getRepositoryName();
