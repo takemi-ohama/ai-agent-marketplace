@@ -597,16 +597,19 @@ async function main() {
 
   // Step 1: Send message with mention to trigger notification
   const mentionMessage = userMention ? `${userMention} ${message}` : message;
+  logDebug(`Step 1: Sending mention message: "${mentionMessage}"`);
 
   let mentionResult;
   try {
     mentionResult = await sendSlackMessage(channelId, token, mentionMessage);
     if (!mentionResult) {
-      logDebug('Failed to send initial message');
+      logDebug('Failed to send mention message (no result)');
       process.exit(1);
     }
+    logDebug(`Mention message sent successfully (ts: ${mentionResult.ts})`);
   } catch (error) {
-    logDebug('Failed to send initial message');
+    logDebug(`Failed to send mention message: ${error.message}`);
+    logDebug(`Error stack: ${error.stack}`);
     process.exit(1);
   }
 
