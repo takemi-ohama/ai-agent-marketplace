@@ -234,7 +234,7 @@ CONTEXT7_API_KEY="your-api-key-here"
 
 ### 1. MCP統合 (9サーバー)
 
-#### GitHub MCP (HTTP)
+#### GitHub MCP (Local)
 - PR作成・レビュー・マージ
 - イシュー管理
 - コード検索
