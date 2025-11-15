@@ -192,9 +192,6 @@ ${conversationText.substring(0, 2000)}
           // Get first line only
           summary = summary.split('\n')[0].trim();
 
-          // Truncate to 40 chars
-          summary = summary.substring(0, 40);
-
           // Validate summary is meaningful (at least 5 chars)
           if (summary.length >= 5) {
             logDebug(`Claude generated summary: ${summary}`);
@@ -284,9 +281,9 @@ function generateSummaryFromTranscript(transcriptPath) {
 
       logDebug(`After noise removal: ${userRequest.substring(0, 100)}`);
 
-      // Extract only the first meaningful line (up to 40 chars)
+      // Extract only the first meaningful line
       const firstLine = userRequest.split('\n')[0].trim();
-      summary = firstLine.substring(0, 40);
+      summary = firstLine;
     }
 
     // Fallback to assistant message
@@ -294,7 +291,7 @@ function generateSummaryFromTranscript(transcriptPath) {
       if (assistantMessages.length > 0) {
         const assistantText = assistantMessages[assistantMessages.length - 1];
         const firstLine = assistantText.split('\n')[0].trim();
-        summary = firstLine.substring(0, 40);
+        summary = firstLine;
       }
     }
 
