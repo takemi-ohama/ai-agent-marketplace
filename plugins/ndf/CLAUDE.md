@@ -274,7 +274,7 @@ NDFプラグインは**10個のMCPサーバー、6つのコマンド、4つの�
 
 ### Claude CLI呼び出し時の無限ループ防止
 
-Stop hookスクリプト内で`claude`コマンドをサブプロセスとして呼び出す場合、**必ず`--settings '{"disableAllHooks": true}'`フラグを使用してhooksを無効化**してください。
+Stop hookスクリプト内で`claude`コマンドをサブプロセスとして呼び出す場合、**必ず`--settings`フラグでhooksとpluginsを無効化**してください。
 
 これを忘れると、サブプロセスが終了時に自身のStop hookをトリガーし、無限ループが発生します。
 
@@ -284,7 +284,7 @@ const { spawn } = require('child_process');
 
 const claude = spawn('claude', [
   '-p',
-  '--settings', '{"disableAllHooks": true}',  // ★ 必須
+  '--settings', '{"disableAllHooks": true, "disableAllPlugins": true}',  // ★ 必須
   '--output-format', 'text'
 ], {
   stdio: ['pipe', 'pipe', 'pipe']
@@ -293,7 +293,7 @@ const claude = spawn('claude', [
 
 **正しい実装（Bash）:**
 ```bash
-claude -p --settings '{"disableAllHooks": true}' --output-format text
+claude -p --settings '{"disableAllHooks": true, "disableAllPlugins": true}' --output-format text
 ```
 
 詳細は、リポジトリルートの`CLAUDE.md`の「Stop Hook実装ガイドライン」セクションを参照してください。
