@@ -4,6 +4,12 @@
 
 このドキュメントは、AI Agent Marketplaceリポジトリと対話するAIエージェント向けのガイドラインを提供します。
 
+## Important Notes
+* All AI agent interactions must be in Japanese.
+* Never commit/push directly to main branch. Always create a working branch.
+* Do not approve PRs without permission.
+
+
 ## リポジトリ概要
 
 Claude Codeプラグインマーケットプレイスとして、以下を配布します：

@@ -3,6 +3,10 @@
 # Slack notification script for Claude Code completion
 # Reads transcript_path from stdin (hook input JSON) and generates summary
 
+# IMPORTANT: Prevent infinite loop when called from Stop Hook
+# If this script invokes Claude CLI, hooks must be disabled
+export CLAUDE_DISABLE_HOOKS=1
+
 # Enable debug logging
 LOG_FILE="${HOME}/.claude/logs/slack-notify-debug.log"
 mkdir -p "$(dirname "$LOG_FILE")"
@@ -242,6 +246,8 @@ WORK_SUMMARY=""
 # Priority 1: Generate from transcript if available
 if [ -n "$TRANSCRIPT_PATH" ]; then
   log_debug "Attempting to generate summary from transcript"
+  # NOTE: If Claude CLI is invoked here, hooks must be disabled to prevent infinite loops
+  # Example: CLAUDE_DISABLE_HOOKS=1 claude ...
   WORK_SUMMARY=$(generate_summary_from_transcript "$TRANSCRIPT_PATH")
   log_debug "Transcript summary: ${WORK_SUMMARY:-'empty'}"
 fi
