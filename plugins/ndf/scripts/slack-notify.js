@@ -160,14 +160,8 @@ ${conversationText.substring(0, 2000)}
       logDebug('Calling Claude CLI for summarization');
 
       // Call claude CLI with -p flag
-      // IMPORTANT: Disable both hooks and plugins to prevent infinite loop
       const claude = spawn('claude', ['-p', '--output-format', 'text'], {
-        stdio: ['pipe', 'pipe', 'pipe'],
-        env: {
-          ...process.env,
-          CLAUDE_DISABLE_HOOKS: '1',    // Prevent Stop hook from firing in subprocess
-          CLAUDE_DISABLE_PLUGINS: '1'   // Prevent plugins from loading in subprocess
-        }
+        stdio: ['pipe', 'pipe', 'pipe']
       });
 
       let output = '';
