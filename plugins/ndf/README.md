@@ -6,7 +6,7 @@ Claude Code開発環境を**オールインワン**で強化する統合プラ�
 
 このプラグイン1つで、以下の**すべて**の機能を利用できます：
 
-1. **MCP統合**: 9つの強力なMCPサーバー（GitHub、Serena、BigQuery、Notion、DBHub、Chrome DevTools、AWS Docs、Codex CLI、Context7）
+1. **MCP統合**: 10個の強力なMCPサーバー（GitHub、Serena、BigQuery、Notion、DBHub、Chrome DevTools、AWS Docs、Codex CLI、Context7、Claude Code）
 2. **開発ワークフロー**: PR作成、レビュー、マージ、ブランチクリーンアップコマンド
 3. **専門エージェント**: 6つの特化型AIエージェント（データ分析、コーディング、調査、ファイル読み取り、Slack通知、作業記録）
 4. **自動フック**: Serenaメモリー保存とSlack通知
@@ -232,7 +232,7 @@ CONTEXT7_API_KEY="your-api-key-here"
 
 ## 機能詳細
 
-### 1. MCP統合 (9サーバー)
+### 1. MCP統合 (10サーバー)
 
 #### GitHub MCP (Local)
 - PR作成・レビュー・マージ
@@ -281,6 +281,11 @@ CONTEXT7_API_KEY="your-api-key-here"
 - 最新のコード例とドキュメント取得
 - フレームワーク・ライブラリの最新情報
 - コミュニティのベストプラクティス参照
+
+#### Claude Code MCP (Local)
+- Claude Code CLIツールへのアクセス
+- View、Edit、LSなどのファイル操作
+- 他のアプリケーションからClaude Codeの機能を利用
 
 ### 2. 開発ワークフローコマンド
 
