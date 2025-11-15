@@ -58,8 +58,10 @@ GOOGLE_APPLICATION_CREDENTIALS=
 DATABASE_DSN=
 
 # Slack通知 (オプション)
-# Incoming Webhook URL取得: https://api.slack.com/messaging/webhooks
-SLACK_WEBHOOK_URL=
+# Slack Appセットアップ手順は下記の詳細設定を参照
+SLACK_BOT_TOKEN=
+SLACK_CHANNEL_ID=
+SLACK_USER_MENTION=  # 例: <@U0123456789>
 
 # Context7 MCP (オプション - 最新コード例とドキュメント取得用)
 # API Key取得: https://context7.com
@@ -431,10 +433,10 @@ PRマージ後のクリーンアップ
 **専門領域:** Slack通知の送信と作業要約生成
 
 **機能:**
-- Git変更内容の分析
-- 40文字以内の簡潔な日本語要約作成
-- `slack-notify.sh`スクリプトの実行
-- エラーハンドリング
+- transcript（会話履歴）とGit変更内容の分析
+- 40文字以内の簡潔な日本語要約を生成（AIプロンプトで指示）
+- `slack-notify.js`スクリプトの実行
+- エラーハンドリングとフォールバック機能
 
 **使用場面:**
 - Stopフックから自動的に呼び出される（手動呼び出しは不要）
@@ -523,10 +525,11 @@ Claude Codeのフックは並列実行されるため、処理順序を保証す
 `@slack-notifier`エージェントを使用してSlack通知を送信します（SLACK_BOT_TOKENが設定されている場合のみ）。
 
 **処理フロー:**
-1. `@slack-notifier`エージェントを起動
-2. エージェントがGit diffと会話履歴から作業内容を分析
-3. 40文字以内の簡潔な日本語要約を作成
-4. `slack-notify.sh`スクリプトを実行し、要約を引数として渡す
+1. SLACK_BOT_TOKENが未設定の場合は自動スキップ
+2. transcript（会話履歴）の解析を試行（優先度1）
+3. フォールバック: transcriptテキスト解析（優先度2）
+4. フォールバック: git diff解析（優先度3）
+5. 生成した要約をSlackに送信
 
 **要約例:**
 - 「NDFプラグインにContext7追加」
@@ -556,8 +559,8 @@ Claude Codeのフックは並列実行されるため、処理順序を保証す
 **設定:** プラグインインストール後、自動的に有効になります
 
 **無限ループ防止:**
-- `slack-notify.sh`スクリプトは`CLAUDE_DISABLE_HOOKS=1`を設定し、フック無限ループを防止
-- スクリプト内でClaude CLIを呼び出しても、再度フックが発火しません
+- `slack-notify.js`スクリプトはClaude CLI呼び出し時に`--settings '{"disableAllHooks": true, "disableAllPlugins": true}'`を使用
+- これによりサブプロセスのhooksとpluginsを無効化し、フック無限ループを防止
 
 **注意:**
 - フックはClaude Code再起動後に有効化されます
@@ -614,9 +617,11 @@ Claude Codeが自動的に適切なMCPツールを選択・利用します。
 
 ### Slack通知が送信されない
 
-1. `SLACK_WEBHOOK_URL`が正しく設定されているか確認
-2. Webhook URLが有効か確認（curl等でテスト）
-3. Claude Codeのログでエラーを確認
+1. `SLACK_BOT_TOKEN`と`SLACK_CHANNEL_ID`が正しく設定されているか確認
+2. Slack AppがWorkspaceにインストールされているか確認
+3. Botがチャンネルにメンバーとして追加されているか確認
+4. 必要なBot Token Scopes（`chat:write`, `chat:write.public`）が付与されているか確認
+5. Claude Codeのログ（`hooks_log.log`）でエラーを確認
 
 ### コマンドが表示されない
 
