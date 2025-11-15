@@ -93,6 +93,16 @@
       },
       "envFile": "${workspaceFolder}/.env",
       "disabled": false
+    },
+    "claude-code": {
+      "type": "stdio",
+      "command": "claude",
+      "args": [
+        "mcp",
+        "serve"
+      ],
+      "envFile": "${workspaceFolder}/.env",
+      "disabled": false
     }
   }
 }
