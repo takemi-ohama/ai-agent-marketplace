@@ -139,7 +139,7 @@ ${conversationText.substring(0, 2000)}
 要約:`;
 
       // Call claude CLI with -p flag and disable hooks & plugins to prevent infinite loop
-      const claude = spawn('claude', ['-p', '--settings', '{"disableAllHooks": true, "disableAllPlugins": true}', '--output-format', 'text'], {
+      const claude = spawn('claude', ['-p', '--settings', '{"disableAllHooks": true, "disableAllPlugins": true}', '--output-format', 'json'], {
         stdio: ['pipe', 'pipe', 'pipe']
       });
 
@@ -156,26 +156,25 @@ ${conversationText.substring(0, 2000)}
 
       claude.on('close', (code) => {
         if (code === 0 && output.trim()) {
-          let summary = output.trim();
+          try {
+            // Parse JSON response
+            const response = JSON.parse(output.trim());
+            const summary = (response.content || response).trim();
 
-          // Remove common greeting/filler phrases
-          summary = summary
-            .replace(/^ユーザーさん、?/i, '')
-            .replace(/^調査結果をまとめます：?/i, '')
-            .replace(/^以下の要約です：?/i, '')
-            .replace(/^要約：?/i, '')
-            .replace(/^作業内容：?/i, '')
-            .replace(/^実施した作業：?/i, '')
-            .trim();
-
-          // Get first line only
-          summary = summary.split('\n')[0].trim();
-
-          // Validate summary is meaningful (at least 5 chars)
-          if (summary.length >= 5) {
-            resolve(summary);
-          } else {
-            resolve(null);
+            // Validate summary is meaningful (at least 5 chars)
+            if (summary.length >= 5) {
+              resolve(summary);
+            } else {
+              resolve(null);
+            }
+          } catch (e) {
+            // If JSON parsing fails, fallback to raw text
+            const summary = output.trim().split('\n')[0].trim();
+            if (summary.length >= 5) {
+              resolve(summary);
+            } else {
+              resolve(null);
+            }
           }
         } else {
           resolve(null);
@@ -193,124 +192,6 @@ ${conversationText.substring(0, 2000)}
     } catch (error) {
       resolve(null);
     }
-  });
-}
-
-// Generate summary from transcript file (fallback method)
-function generateSummaryFromTranscript(transcriptPath) {
-  if (!fs.existsSync(transcriptPath)) {
-    return null;
-  }
-
-  try {
-    // Read last 30 lines of JSONL file
-    const content = fs.readFileSync(transcriptPath, 'utf8');
-    const allLines = content.trim().split('\n');
-    const lines = allLines.slice(-30);
-
-    // Extract user and assistant messages
-    const messages = [];
-    for (const line of lines) {
-      try {
-        const data = JSON.parse(line);
-        if (data.message && data.message.role) {
-          const role = data.message.role;
-          if (role === 'user' || role === 'assistant') {
-            const text = extractTextFromContent(data.message.content);
-            if (text) {
-              messages.push({ role, text });
-            }
-          }
-        }
-      } catch (e) {
-        // Skip invalid JSON lines
-      }
-    }
-
-    // Get last 10 messages
-    const recentMessages = messages.slice(-10);
-
-    // Extract last user request
-    const userMessages = recentMessages.filter(m => m.role === 'user').map(m => m.text);
-    const assistantMessages = recentMessages.filter(m => m.role === 'assistant').map(m => m.text);
-
-    let summary = null;
-
-    if (userMessages.length > 0) {
-      let userRequest = userMessages[userMessages.length - 1];
-
-      // Remove noise patterns
-      userRequest = userRequest
-        .replace(/^\/[^\s]*\s*/, '')           // Command prefixes
-        .replace(/^[Hh]ooks*\s*/, '')          // "hooks"
-        .replace(/^[Ee]xit code.*/i, '')       // "Exit code"
-        .replace(/^error:.*/i, '')             // "error:"
-        .replace(/^already.*/i, '')            // "already"
-        .replace(/^#+\s*/gm, '')               // Markdown headers (##, ###)
-        .replace(/\n#+\s*$/g, '')              // Trailing markdown headers
-        .trim();
-
-      // Extract only the first meaningful line
-      const firstLine = userRequest.split('\n')[0].trim();
-      summary = firstLine;
-    }
-
-    // Fallback to assistant message
-    if (!summary || summary.length < 5) {
-      if (assistantMessages.length > 0) {
-        const assistantText = assistantMessages[assistantMessages.length - 1];
-        const firstLine = assistantText.split('\n')[0].trim();
-        summary = firstLine;
-      }
-    }
-
-    return summary && summary.length >= 5 ? summary : null;
-
-  } catch (error) {
-    return null;
-  }
-}
-
-// Generate summary from git diff as fallback
-function generateSummaryFromGit() {
-  return new Promise((resolve) => {
-    // Check if in git repository
-    const gitCheck = spawn('git', ['rev-parse', '--git-dir']);
-
-    gitCheck.on('close', (code) => {
-      if (code !== 0) {
-        resolve(null);
-        return;
-      }
-
-      // Get changed files
-      const gitDiff = spawn('git', ['diff', '--name-only']);
-      let output = '';
-
-      gitDiff.stdout.on('data', (data) => {
-        output += data.toString();
-      });
-
-      gitDiff.on('close', (code) => {
-        if (code === 0 && output.trim()) {
-          const files = output.trim().split('\n');
-          const count = files.length;
-          const mainFile = path.basename(files[0]);
-
-          if (count === 1) {
-            resolve(`${mainFile}を更新`);
-          } else {
-            resolve(`${mainFile}等${count}件を更新`);
-          }
-        } else {
-          resolve(null);
-        }
-      });
-
-      gitDiff.on('error', () => resolve(null));
-    });
-
-    gitCheck.on('error', () => resolve(null));
   });
 }
 
@@ -473,21 +354,8 @@ async function main() {
     }
   }
 
-  // Get message type from arguments
-  const messageType = process.argv[2] || 'session_end';
-
-  // Create base message
-  let message;
-  if (messageType === 'error') {
-    message = 'Claude Codeでエラーが発生しました';
-  } else if (messageType === 'session_end') {
-    message = 'Claude Codeのセッションが終了しました';
-  } else {
-    message = 'Claude Codeの作業が完了しました';
-  }
-
   // Step 1: Send message with mention to trigger notification
-  const mentionMessage = userMention ? `${userMention} ${message}` : message;
+  const mentionMessage = userMention ? `${userMention} Claude Codeの作業が完了しました` : 'Claude Codeの作業が完了しました';
 
   let mentionResult;
   try {
@@ -502,19 +370,9 @@ async function main() {
   // Step 2: Generate work summary
   let workSummary = null;
 
-  // Priority 1: Generate summary using Claude CLI (highest quality)
+  // Generate summary using Claude CLI
   if (transcriptPath) {
     workSummary = await generateSummaryWithClaude(transcriptPath);
-  }
-
-  // Priority 2: Fallback to transcript text parsing
-  if (!workSummary && transcriptPath) {
-    workSummary = generateSummaryFromTranscript(transcriptPath);
-  }
-
-  // Priority 3: Fallback to git diff
-  if (!workSummary) {
-    workSummary = await generateSummaryFromGit();
   }
 
   // Step 3: Delete mention message (right before sending detailed message)
@@ -529,12 +387,12 @@ async function main() {
   // Step 4: Send detailed message with repository name and work summary
   const repoName = await getRepositoryName();
 
-  // Create detailed message with line break
+  // Create detailed message (1 line format)
   let detailedMessage;
   if (workSummary) {
-    detailedMessage = `[${repoName}] ${message}\n作業内容: ${workSummary}`;
+    detailedMessage = `[${repoName}] ${workSummary}`;
   } else {
-    detailedMessage = `[${repoName}] ${message}`;
+    detailedMessage = `[${repoName}] Claude Codeのセッションが終了しました(要約なし)`;
   }
 
   try {
