@@ -536,7 +536,7 @@ async function main() {
       const hookData = JSON.parse(hookInput);
       if (hookData.stop_hook_active === true) {
         logDebug('stop_hook_active is true, exiting immediately to prevent infinite loop');
-        console.log('{"continue": false}');
+        // Exit silently - Stop hook will continue normally
         process.exit(0);
       }
       logDebug(`stop_hook_active: ${hookData.stop_hook_active || 'not set'}`);
