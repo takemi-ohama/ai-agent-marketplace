@@ -611,21 +611,15 @@ async function main() {
   // Step 2: Generate work summary
   let workSummary = null;
 
-  // Priority 1: Generate with Claude CLI (AI-powered)
+  // Priority 1: Generate from transcript (text parsing)
+  // NOTE: Claude CLI summarization is disabled to prevent infinite loop
   if (transcriptPath) {
-    logDebug('Attempting to generate summary with Claude CLI');
-    workSummary = await generateSummaryWithClaude(transcriptPath);
-    logDebug(`Claude AI summary: ${workSummary || 'empty'}`);
-  }
-
-  // Priority 2: Fallback to simple transcript parsing
-  if (!workSummary && transcriptPath) {
-    logDebug('Fallback: Generating summary from transcript (text parsing)');
+    logDebug('Generating summary from transcript (text parsing)');
     workSummary = generateSummaryFromTranscript(transcriptPath);
     logDebug(`Transcript summary: ${workSummary || 'empty'}`);
   }
 
-  // Priority 3: Fallback to git diff
+  // Priority 2: Fallback to git diff
   if (!workSummary) {
     logDebug('Fallback: Generating summary from git diff');
     workSummary = await generateSummaryFromGit();
