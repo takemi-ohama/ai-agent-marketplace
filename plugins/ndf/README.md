@@ -398,9 +398,9 @@ mainブランチを更新し、マージ済みのfeatureブランチを安全に
 
 #### 無効化されているMCPを有効にする方法
 
-特定のプロジェクトで無効化されているMCPを使いたい場合、以下の手順で有効化できます：
+特定のプロジェクトで無効化されているMCPを使いたい場合、`/mcp`コマンドで簡単に有効化できます：
 
-**方法1: Claude Codeのコマンド（推奨）**
+**手順:**
 
 1. **Claude Codeで`/mcp`コマンドを実行**
 
@@ -423,55 +423,7 @@ mainブランチを更新し、マージ済みのfeatureブランチを安全に
 
    または、一覧画面でMCP名の右側にあるトグルスイッチをクリックして有効化できます。
 
-4. **Claude Codeを再起動**
-
-   変更を反映するために、Claude Codeを終了して再起動します。
-
-   ```bash
-   # ターミナルから再起動する場合
-   # Ctrl+C で終了後、再度起動
-   claude
-   ```
-
-5. **有効化を確認**
-
-   再度 `/mcp` コマンドを実行して、該当のMCPが🟢緑色になっていることを確認します。
-
-**方法2: .mcp.jsonを直接編集（上級者向け）**
-
-1. **`.mcp.json`ファイルを開く**
-
-   プロジェクトルートにある`.mcp.json`ファイルをエディタで開きます：
-   ```bash
-   # Claude Codeで開く場合
-   claude view .mcp.json
-
-   # または通常のエディタで開く
-   vim .mcp.json
-   code .mcp.json
-   ```
-
-2. **有効化したいMCPの`"disabled"`を`false`に変更**
-
-   例: Notion MCPを有効化する場合：
-   ```json
-   "notion": {
-     "type": "http",
-     "url": "https://mcp.notion.com/mcp",
-     "envFile": "${workspaceFolder}/.env",
-     "disabled": false  // ← trueからfalseに変更
-   }
-   ```
-
-3. **ファイルを保存**
-
-   変更を保存します（`:wq`、`Ctrl+S`など）。
-
-4. **Claude Codeを再起動**
-
-   変更を反映するために再起動します。
-
-5. **（オプション）認証情報の設定**
+4. **（必要に応じて）認証情報を設定**
 
    BigQuery、DBHub、Notionなどを有効化した場合は、`.env`ファイルに対応する認証情報も設定してください：
    ```bash
@@ -481,9 +433,33 @@ mainブランチを更新し、マージ済みのfeatureブランチを安全に
    GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json
    ```
 
+5. **Claude Codeを再起動**
+
+   変更を反映するために、Claude Codeを終了して再起動します。
+
+   ```bash
+   # ターミナルから再起動する場合
+   # Ctrl+C で終了後、再度起動
+   claude
+   ```
+
+6. **有効化を確認**
+
+   再度 `/mcp` コマンドを実行して、該当のMCPが🟢緑色になっていることを確認します。
+
+**有効化の具体例:**
+
+| MCP | 必要な認証情報 | 用途 |
+|-----|-------------|------|
+| **Notion MCP** | `NOTION_API_KEY` | Notionドキュメント管理 |
+| **BigQuery MCP** | `GOOGLE_APPLICATION_CREDENTIALS` | BigQueryデータ分析 |
+| **DBHub MCP** | `DATABASE_DSN` | データベース操作（MySQL/PostgreSQL等） |
+| **AWS Docs MCP** | 不要 | AWS公式ドキュメント検索 |
+| **Claude Code MCP** | 不要 | Claude Code機能拡張 |
+
 **注意事項:**
 - MCPを有効化すると、コンテキスト使用量が増加します（1MCPあたり約5k～30k tokens）
-- BigQueryやDBHubを有効化する場合は、対応する認証情報（`.env`）を必ず設定してください
+- 認証が必要なMCPは、対応する`.env`設定を忘れずに行ってください
 - 使わないMCPは無効のままにしておくことを推奨します（パフォーマンス向上）
 
 #### 現在有効なMCPをさらに無効化する
