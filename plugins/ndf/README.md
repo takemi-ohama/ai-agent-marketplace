@@ -9,7 +9,7 @@ Claude Code開発環境を**オールインワン**で強化する統合プラ�
 1. **MCP統合**: 10個の強力なMCPサーバー（GitHub、Serena、BigQuery、Notion、DBHub、Chrome DevTools、AWS Docs、Codex CLI、Context7、Claude Code）
 2. **開発ワークフロー**: PR作成、レビュー、マージ、ブランチクリーンアップコマンド
 3. **専門エージェント**: 5つの特化型AIエージェント（データ分析、コーディング、調査、ファイル読み取り、品質管理）
-4. **自動フック**: Serenaメモリー保存とSlack通知
+4. **自動フック**: Slack通知
 
 ## インストール
 
