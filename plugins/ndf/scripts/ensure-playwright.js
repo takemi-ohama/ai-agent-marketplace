@@ -7,6 +7,7 @@ const os = require('os');
 
 const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT || __dirname;
 const FLAG_FILE = path.join(os.homedir(), '.claude-ndf-playwright-installed');
+const BROWSER_PATH = path.join(os.homedir(), '.cache', 'ms-playwright');
 const TIMEOUT_MS = 5 * 60 * 1000; // 5分タイムアウト
 
 // 既にインストール済みかチェック（冪等性）
@@ -23,13 +24,14 @@ console.log('ネットワーク環境により1-2分かかる場合がありま�
 console.log('');
 
 try {
-  // npx playwright install chromium を実行
+  // PLAYWRIGHT_BROWSERS_PATHを設定してインストール
   execSync('npx playwright install chromium', {
     stdio: 'inherit',
     cwd: PLUGIN_ROOT,
     timeout: TIMEOUT_MS,
     env: {
       ...process.env,
+      PLAYWRIGHT_BROWSERS_PATH: BROWSER_PATH,
       PLAYWRIGHT_SKIP_BROWSER_GC: '1'
     }
   });
@@ -38,13 +40,15 @@ try {
   const flagData = {
     installed: new Date().toISOString(),
     plugin: 'ndf',
-    browser: 'chromium'
+    browser: 'chromium',
+    browserPath: BROWSER_PATH
   };
 
   fs.writeFileSync(FLAG_FILE, JSON.stringify(flagData, null, 2));
 
   console.log('');
   console.log('✅ セットアップ完了！Playwright Chromiumの準備ができました。');
+  console.log(`   ブラウザパス: ${BROWSER_PATH}`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   process.exit(0);
 
@@ -55,7 +59,7 @@ try {
   console.error('エラー:', error.message);
   console.error('');
   console.error('手動でインストールするには以下を実行してください:');
-  console.error('  npx playwright install chromium');
+  console.error(`  PLAYWRIGHT_BROWSERS_PATH=${BROWSER_PATH} npx playwright install chromium`);
   console.error('');
   console.error('トラブルシューティング:');
   console.error('  https://playwright.dev/docs/browsers');
