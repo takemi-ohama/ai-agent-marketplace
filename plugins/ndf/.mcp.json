@@ -12,7 +12,8 @@
     "notion": {
       "type": "http",
       "url": "https://mcp.notion.com/mcp",
-      "envFile": "${workspaceFolder}/.env"
+      "envFile": "${workspaceFolder}/.env",
+      "disabled": true
     },
     "serena": {
       "type": "stdio",
@@ -40,7 +41,7 @@
         "AWS_DOCUMENTATION_PARTITION": "aws"
       },
       "envFile": "${workspaceFolder}/.env",
-      "disabled": false
+      "disabled": true
     },
     "mcp-server-bigquery": {
       "type": "stdio",
@@ -49,7 +50,7 @@
         "mcp-server-bigquery@latest"
       ],
       "envFile": "${workspaceFolder}/.env",
-      "disabled": false
+      "disabled": true
     },
     "dbhub": {
       "type": "stdio",
@@ -64,7 +65,7 @@
         "${DATABASE_DSN}"
       ],
       "envFile": "${workspaceFolder}/.env",
-      "disabled": false
+      "disabled": true
     },
     "chrome-devtools-mcp": {
       "type": "stdio",
@@ -102,7 +103,7 @@
         "serve"
       ],
       "envFile": "${workspaceFolder}/.env",
-      "disabled": false
+      "disabled": true
     }
   }
 }
