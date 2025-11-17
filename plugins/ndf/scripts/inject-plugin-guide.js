@@ -129,6 +129,15 @@ function main() {
   // Write back
   fs.writeFileSync(targetFile, newContent, 'utf8');
   console.log(`Successfully injected plugin guide to ${targetFile}`);
+
+  // Notify Claude Code that CLAUDE.md was updated
+  const hookOutput = {
+    hookSpecificOutput: {
+      hookEventName: "SessionStart",
+      additionalContext: `📝 CLAUDE.mdが更新されました。NDFプラグインガイド（v${pluginVersion}）が追加されています。最新のガイドラインを確認してください。`
+    }
+  };
+  console.log(JSON.stringify(hookOutput));
 }
 
 // Run
