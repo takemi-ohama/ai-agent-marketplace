@@ -122,9 +122,9 @@ function main() {
     targetContent = removeOldVersion(targetContent);
   }
 
-  // Append new version
+  // Prepend new version to beginning of file
   console.log(`Injecting plugin guide v${pluginVersion}...`);
-  const newContent = targetContent.trimEnd() + '\n\n' + pluginGuide.trim() + '\n';
+  const newContent = pluginGuide.trim() + '\n\n' + targetContent;
 
   // Write back
   fs.writeFileSync(targetFile, newContent, 'utf8');
