@@ -23,7 +23,6 @@ if (!pluginRoot) {
 // Paths
 const pluginGuidePath = path.join(pluginRoot, 'CLAUDE_plugin.md');
 const targetGuidePath = path.join(projectRoot, 'CLAUDE.ndf.md');
-const importLine = '@CLAUDE.ndf.md';
 
 // Find target file (CLAUDE.md or AGENT.md)
 function findTargetFile() {
@@ -44,6 +43,15 @@ function findTargetFile() {
   if (fs.existsSync(claudeDirAgent)) return claudeDirAgent;
 
   return null;
+}
+
+// Get import line based on target file location
+function getImportLine(targetFile) {
+  const targetDir = path.dirname(targetFile);
+  const relativePath = path.relative(targetDir, targetGuidePath);
+  // Convert to forward slashes for consistency
+  const normalizedPath = relativePath.split(path.sep).join('/');
+  return `@${normalizedPath}`;
 }
 
 // Main function
@@ -87,6 +95,9 @@ function main() {
 
   let targetContent = fs.readFileSync(targetFile, 'utf8');
 
+  // Get correct import line for target file location
+  const importLine = getImportLine(targetFile);
+
   // Check if import line already exists
   if (targetContent.includes(importLine)) {
     console.log(`✓ Import line already exists in ${path.basename(targetFile)}`);
@@ -97,7 +108,7 @@ function main() {
   // Add import line at the end
   const newContent = targetContent.trimEnd() + '\n' + importLine + '\n';
   fs.writeFileSync(targetFile, newContent, 'utf8');
-  console.log(`✓ Added import line to ${path.basename(targetFile)}`);
+  console.log(`✓ Added import line to ${path.basename(targetFile)}: ${importLine}`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
   // Notify Claude Code
