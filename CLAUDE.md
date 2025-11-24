@@ -4,7 +4,7 @@
 
 ## Overview
 
-NDF plugin provides **10 MCP servers, 6 commands, and 5 specialized sub-agents**. Delegate complex tasks to appropriate sub-agents for better results.
+NDF plugin provides **10 MCP servers, 6 commands, and 6 specialized sub-agents**. Delegate complex tasks to appropriate sub-agents for better results.
 
 ## Core Policies
 
