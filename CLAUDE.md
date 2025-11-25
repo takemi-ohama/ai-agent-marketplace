@@ -348,3 +348,4 @@ NDFプラグインを使用する場合は、`plugins/ndf/CLAUDE.ndf.md`にあ�
 NDFプラグインを使用する際の詳細なガイドラインは、以下のファイルに記載されています：
 
 @plugins/ndf/CLAUDE.ndf.md
+@CLAUDE.ndf.md
