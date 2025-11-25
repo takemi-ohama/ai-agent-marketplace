@@ -20,8 +20,9 @@ NDFプラグインは、3つの既存プラグインを統合したオールイ�
 
 **重要な変更 (v1.0.6):**
 - **directorサブエージェントを追加** - タスク統括と調整の専門エージェント
-- Main Agentの責務をdirectorに移譲（調査、計画、取りまとめ）
-- Main Agentは指示出しのみに徹し、複雑なタスクはdirectorに委譲
+- Main Agentの責務（ALL tasks）をdirectorに完全移譲（調査、計画、取りまとめ、実行）
+- **Main Agentは指示出しのみに徹し、すべてのタスクをdirectorに委譲**
+- Directorが他のサブエージェント（data-analyst、corder、researcher、scanner、qa）を統括
 - 専門エージェント数: 5→6に更新
 
 ## ディレクトリ構造
@@ -85,15 +86,17 @@ plugins/ndf/
 
 `plugin.json`の`agents`フィールドで定義：
 
-**director** - タスク統括と調整（NEW v1.0.6）
+**director** - タスク統括と調整（NEW v1.0.6）⭐ **PRIMARY WORKING AGENT**
 - Serena MCP、GitHub MCP、基本ツールを活用
+- **Main Agentが担っていたすべての責務を引き継ぐ**
 - タスク全体の理解と分解
-- 情報収集と調査
+- 情報収集と調査（Serena MCPで段階的探索）
 - 計画立案と実行戦略
+- シンプルなタスクの直接実行
 - 他のサブエージェントへの指示出し
 - 結果の統合と取りまとめ
 - ユーザーへの詳細報告
-- **Main Agentが担っていた責務をすべて引き継ぎ、Main Agentは指示出しのみに徹する**
+- **Main Agentは指示出しのみ、directorがすべての作業を統括**
 
 **data-analyst** - データ分析とSQL操作
 - BigQuery MCP、DBHub MCPを活用
