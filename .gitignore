@@ -30,4 +30,4 @@ yarn-error.log*
 *.bak
 
 # Plugin-generated context files
-CLAUDE.ndf.md
+# (none currently)
