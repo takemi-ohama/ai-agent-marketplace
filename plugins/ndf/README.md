@@ -46,16 +46,18 @@ Claude Code開発環境を**オールインワン**で強化する統合プラ�
 GITHUB_PERSONAL_ACCESS_TOKEN=
 
 # Notion MCP (オプション - Notion使用時のみ)
-# トークン取得: https://www.notion.so/my-integrations
-NOTION_API_KEY=
+# Integration Token取得: https://www.notion.so/my-integrations
+NOTION_TOKEN=
 
 # BigQuery MCP (オプション - BigQuery使用時のみ)
-# サービスアカウント作成: https://console.cloud.google.com/iam-admin/serviceaccounts
-GOOGLE_APPLICATION_CREDENTIALS=
+# GCPプロジェクトID、ロケーション、サービスアカウントキーファイル
+BIGQUERY_PROJECT=
+BIGQUERY_LOCATION=US
+BIGQUERY_KEY_FILE=
 
 # DBHub MCP (オプション - データベース操作用)
 # データベース接続文字列 (DSN)
-DATABASE_DSN=
+DSN=
 
 # Slack通知 (オプション)
 # Slack Appセットアップ手順は下記の詳細設定を参照
@@ -67,9 +69,10 @@ SLACK_USER_MENTION=  # 例: <@U0123456789>
 # API Key取得: https://context7.com
 CONTEXT7_API_KEY=
 
-# 注意: Serena MCP、AWS Documentation MCP、Chrome DevTools MCP、Codex CLI MCPは認証不要
-# Codex CLI MCPはインストール必要: https://github.com/openai/codex/releases
-# インストール後、'codex login'を実行
+# 注意:
+# - Serena MCP、AWS Docs MCP、Chrome DevTools MCPは認証不要
+# - Codex CLI MCPはインストール必要: https://github.com/openai/codex/releases
+#   インストール後、'codex login'を実行
 ```
 
 #### .envファイルの保護
@@ -83,23 +86,23 @@ echo ".env" >> .gitignore
 #### 各認証情報の詳細設定
 
 <details>
-<summary><strong>DATABASE_DSN の設定方法（DBHub MCP用）</strong></summary>
+<summary><strong>DSN（DATABASE_DSN）の設定方法（DBHub MCP用）</strong></summary>
 
-DBHub MCPは複数のデータベースに対応しています。
+DBHub MCPは複数のデータベースに対応しています。環境変数名は`DSN`または`DATABASE_DSN`のどちらでも使用可能です。
 
 **PostgreSQL:**
 ```bash
-DATABASE_DSN="postgres://USERNAME:PASSWORD@HOST:PORT/DATABASE?sslmode=disable"
+DSN="postgres://USERNAME:PASSWORD@HOST:PORT/DATABASE?sslmode=disable"
 ```
 
 SSL接続が必要な場合：
 ```bash
-DATABASE_DSN="postgres://USERNAME:PASSWORD@HOST:PORT/DATABASE?sslmode=require"
+DSN="postgres://USERNAME:PASSWORD@HOST:PORT/DATABASE?sslmode=require"
 ```
 
-**MySQL / MariaDB:**（同じDSN形式）
+**MySQL / MariaDB:**
 ```bash
-DATABASE_DSN="mysql://USERNAME:PASSWORD@HOST:PORT/DATABASE"
+DSN="mysql://USERNAME:PASSWORD@HOST:PORT/DATABASE"
 ```
 
 SSH踏み台サーバー経由で接続する場合：
@@ -109,22 +112,23 @@ SSH踏み台サーバー経由で接続する場合：
    ```
 2. ローカルポート経由で接続
    ```bash
-   DATABASE_DSN="mysql://USERNAME:PASSWORD@localhost:3307/DATABASE"
+   DSN="mysql://USERNAME:PASSWORD@localhost:3307/DATABASE"
    ```
 
 **SQLite:**
 ```bash
-DATABASE_DSN="sqlite:///PATH/TO/DATABASE.db"
+DSN="sqlite:///PATH/TO/DATABASE.db"
 ```
 
 **SQL Server:**
 ```bash
-DATABASE_DSN="sqlserver://USERNAME:PASSWORD@HOST:PORT?database=DATABASE"
+DSN="sqlserver://USERNAME:PASSWORD@HOST:PORT?database=DATABASE"
 ```
 
 **注意事項:**
-- パスワードに特殊文字が含まれる場合は、URLエンコードが必要
+- パスワードに特殊文字が含まれる場合は、URLエンコードが必要（例: `@` → `%40`, `#` → `%23`）
 - ローカルデータベースの場合は `localhost` を使用
+- `DSN`と`DATABASE_DSN`は同じ意味（どちらを使用してもOK）
 
 </details>
 
@@ -224,6 +228,294 @@ CONTEXT7_API_KEY="your-api-key-here"
 ### ステップ4: Claude Codeを再起動
 
 `.env` ファイルに値を入力したら、Claude Codeを再起動してMCPサーバーとフックをロードします。
+
+## 環境変数リファレンス
+
+各MCPサーバーが使用する環境変数の完全な一覧です。太字は必須、通常テキストはオプションです。
+
+### 📋 環境変数テンプレート
+
+プロジェクトルートに以下の`.env`ファイルを作成してください：
+
+```bash
+# ============================================
+# GitHub MCP - PR/イシュー管理（必須）
+# ============================================
+GITHUB_PERSONAL_ACCESS_TOKEN=your-github-token-here
+
+# オプション設定
+# GITHUB_HOST=github.com
+# GITHUB_TOOLSETS=default
+# GITHUB_TOOLS=all
+# GITHUB_READ_ONLY=false
+# GITHUB_LOCKDOWN_MODE=false
+# GITHUB_DYNAMIC_TOOLSETS=false
+
+# ============================================
+# Serena MCP - コード分析（推奨）
+# ============================================
+# すべてオプション - 基本機能に認証不要
+# SERENA_HOME=/path/to/serena/home
+# GOOGLE_API_KEY=your-google-api-key
+# ANTHROPIC_API_KEY=your-anthropic-api-key
+
+# ============================================
+# Chrome DevTools MCP - Web調査
+# ============================================
+# 専用環境変数なし - envFileのみ
+
+# ============================================
+# Codex CLI MCP - コードレビュー
+# ============================================
+# すべてオプション - ローカルインストール推奨
+# CODEX_HOME=/path/to/codex/home
+# OPENAI_API_KEY=your-openai-api-key
+# OPENAI_BASE_URL=https://api.openai.com/v1
+# AZURE_OPENAI_API_KEY=your-azure-openai-key
+# MISTRAL_API_KEY=your-mistral-api-key
+
+# ============================================
+# Context7 MCP - 最新ライブラリドキュメント
+# ============================================
+# オプション - APIキーなしでも動作
+# CONTEXT7_API_KEY=your-context7-api-key
+
+# ============================================
+# Notion MCP - Notionドキュメント管理
+# ============================================
+NOTION_TOKEN=your-notion-token-here
+
+# オプション設定
+# OPENAPI_MCP_HEADERS={"Authorization": "Bearer token"}
+# AUTH_TOKEN=your-auth-token
+
+# ============================================
+# AWS Docs MCP - AWS公式ドキュメント
+# ============================================
+# FASTMCP_LOG_LEVEL=ERROR
+# AWS_DOCUMENTATION_PARTITION=aws
+# MCP_USER_AGENT=custom-user-agent
+
+# ============================================
+# BigQuery MCP - BigQueryデータ分析
+# ============================================
+BIGQUERY_PROJECT=your-gcp-project-id
+BIGQUERY_LOCATION=US
+
+# オプション設定
+# BIGQUERY_DATASETS=dataset1,dataset2
+# BIGQUERY_KEY_FILE=/path/to/service-account-key.json
+
+# ============================================
+# DBHub MCP - データベース操作
+# ============================================
+# Method 1: DSN（推奨）
+DSN=mysql://user:password@host:3306/database
+
+# Method 2: 個別指定
+# DB_TYPE=mysql
+# DB_HOST=localhost
+# DB_USER=username
+# DB_PASSWORD=password
+# DB_NAME=database
+# DB_PORT=3306
+
+# オプション設定
+# TRANSPORT=http
+# PORT=8080
+# READONLY=false
+
+# SSH踏み台サーバー経由接続（オプション）
+# SSH_HOST=bastion.example.com
+# SSH_PORT=22
+# SSH_USER=ssh-user
+# SSH_PRIVATE_KEY_PATH=/path/to/ssh/key
+# SSH_PRIVATE_KEY=-----BEGIN RSA PRIVATE KEY-----...
+# SSH_PASSWORD=ssh-password
+
+# ============================================
+# Claude Code MCP - Claude Code機能拡張
+# ============================================
+# すべてオプション
+# MCP_TIMEOUT=30000
+# MAX_MCP_OUTPUT_TOKENS=10000
+
+# ============================================
+# Slack通知 - 自動フック
+# ============================================
+SLACK_BOT_TOKEN=xoxb-your-slack-bot-token
+SLACK_CHANNEL_ID=C0123456789
+SLACK_USER_MENTION=<@U0123456789>
+```
+
+### 📊 MCPサーバー別環境変数詳細
+
+#### 1. GitHub MCP
+
+| 環境変数 | 必須/オプション | デフォルト値 | 説明 |
+|---------|--------------|------------|------|
+| **GITHUB_PERSONAL_ACCESS_TOKEN** | **必須** | - | GitHubパーソナルアクセストークン（`repo`, `read:org`, `workflow`スコープ）<br>取得: https://github.com/settings/tokens |
+| GITHUB_HOST | オプション | `github.com` | GitHub Enterpriseサーバーのホスト名 |
+| GITHUB_TOOLSETS | オプション | `default` | 利用可能なツールセット |
+| GITHUB_TOOLS | オプション | `all` | 有効化するツール |
+| GITHUB_READ_ONLY | オプション | `false` | 読み取り専用モード |
+| GITHUB_LOCKDOWN_MODE | オプション | `false` | ロックダウンモード |
+| GITHUB_DYNAMIC_TOOLSETS | オプション | `false` | 動的ツールセット有効化 |
+
+#### 2. Serena MCP
+
+| 環境変数 | 必須/オプション | デフォルト値 | 説明 |
+|---------|--------------|------------|------|
+| SERENA_HOME | オプション | `~/.serena` | Serenaのホームディレクトリ |
+| GOOGLE_API_KEY | オプション | - | Google AI（Gemini）APIキー |
+| ANTHROPIC_API_KEY | オプション | - | Anthropic Claude APIキー |
+
+**注意:** Serena MCPの基本機能は認証不要です。高度な機能（AI支援検索等）を使う場合のみAPIキーが必要です。
+
+#### 3. Chrome DevTools MCP
+
+**専用環境変数なし** - `.env`ファイルの`envFile`設定のみ使用。
+
+#### 4. Codex CLI MCP
+
+| 環境変数 | 必須/オプション | デフォルト値 | 説明 |
+|---------|--------------|------------|------|
+| CODEX_HOME | オプション | `~/.codex` | Codex CLIのホームディレクトリ |
+| OPENAI_API_KEY | オプション | - | OpenAI APIキー |
+| OPENAI_BASE_URL | オプション | `https://api.openai.com/v1` | OpenAI APIのベースURL |
+| AZURE_OPENAI_API_KEY | オプション | - | Azure OpenAI APIキー |
+| MISTRAL_API_KEY | オプション | - | Mistral AIのAPIキー |
+
+**注意:** Codex CLI MCPを使用するには、Codex CLIを事前にインストールし、`codex login`を実行してください。
+
+インストール: https://github.com/openai/codex/releases
+
+#### 5. Context7 MCP
+
+| 環境変数 | 必須/オプション | デフォルト値 | 説明 |
+|---------|--------------|------------|------|
+| CONTEXT7_API_KEY | オプション | - | Context7 APIキー<br>取得: https://context7.com |
+
+**注意:** APIキーなしでも動作しますが、レート制限があります。プライベートリポジトリへのアクセスにはAPIキーが必要です。
+
+#### 6. Notion MCP
+
+| 環境変数 | 必須/オプション | デフォルト値 | 説明 |
+|---------|--------------|------------|------|
+| **NOTION_TOKEN** | **必須** | - | Notion Internal Integration Token<br>取得: https://www.notion.so/my-integrations |
+| OPENAPI_MCP_HEADERS | オプション | - | カスタムHTTPヘッダー（JSON形式） |
+| AUTH_TOKEN | オプション | - | 追加の認証トークン |
+
+#### 7. AWS Docs MCP
+
+| 環境変数 | 必須/オプション | デフォルト値 | 説明 |
+|---------|--------------|------------|------|
+| FASTMCP_LOG_LEVEL | オプション | `ERROR` | ログレベル（`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`） |
+| AWS_DOCUMENTATION_PARTITION | オプション | `aws` | AWSパーティション（`aws`, `aws-cn`, `aws-us-gov`） |
+| MCP_USER_AGENT | オプション | - | カスタムUser-Agent |
+
+**注意:** 認証不要でAWS公式ドキュメントにアクセスできます。
+
+#### 8. BigQuery MCP
+
+| 環境変数 | 必須/オプション | デフォルト値 | 説明 |
+|---------|--------------|------------|------|
+| **BIGQUERY_PROJECT** | **必須** | - | GCPプロジェクトID |
+| BIGQUERY_LOCATION | オプション | `US` | BigQueryデータセットのロケーション |
+| BIGQUERY_DATASETS | オプション | - | アクセス許可するデータセット（カンマ区切り） |
+| BIGQUERY_KEY_FILE | オプション | - | サービスアカウントキーファイルのパス<br>（未指定の場合はApplication Default Credentials使用） |
+
+**認証方法:**
+1. **サービスアカウントキーファイル（推奨）**: `BIGQUERY_KEY_FILE`にJSON keyファイルのパスを指定
+2. **Application Default Credentials（ADC）**: `BIGQUERY_KEY_FILE`を設定せず、以下のいずれかを使用
+   - 環境変数`GOOGLE_APPLICATION_CREDENTIALS`でキーファイルのパスを指定
+   - `gcloud auth application-default login`を実行してユーザー認証情報を使用
+
+**注意:** NDFプラグインでは`BIGQUERY_KEY_FILE`を推奨します。ADCを使う場合は`BIGQUERY_KEY_FILE`を設定しないでください。
+
+サービスアカウント作成: https://console.cloud.google.com/iam-admin/serviceaccounts
+
+#### 9. DBHub MCP
+
+| 環境変数 | 必須/オプション | デフォルト値 | 説明 |
+|---------|--------------|------------|------|
+| **DSN** または **DATABASE_DSN** | **必須（Method 1）** | - | データベース接続文字列<br>例: `mysql://user:pass@host:3306/db`<br>（両変数名をサポート） |
+| **DB_TYPE** | **必須（Method 2）** | - | データベースタイプ（`mysql`, `postgres`, `sqlite`, `sqlserver`） |
+| **DB_HOST** | **必須（Method 2）** | - | データベースホスト |
+| **DB_USER** | **必須（Method 2）** | - | データベースユーザー名 |
+| **DB_PASSWORD** | **必須（Method 2）** | - | データベースパスワード |
+| **DB_NAME** | **必須（Method 2）** | - | データベース名 |
+| DB_PORT | オプション | DB依存 | データベースポート（MySQL: 3306, PostgreSQL: 5432） |
+| TRANSPORT | オプション | `http` | トランスポートプロトコル（`http`または`tcp`） |
+| PORT | オプション | `8080` | MCPサーバーのポート |
+| SSH_HOST | オプション | - | SSH踏み台サーバーのホスト |
+| SSH_PORT | オプション | `22` | SSHポート |
+| SSH_USER | オプション | - | SSHユーザー名 |
+| SSH_PRIVATE_KEY_PATH | オプション | - | SSH秘密鍵のパス |
+| SSH_PRIVATE_KEY | オプション | - | SSH秘密鍵の内容（直接指定） |
+| SSH_PASSWORD | オプション | - | SSHパスワード（鍵認証推奨） |
+| READONLY | オプション | `false` | 読み取り専用モード |
+
+**接続方法の選択:**
+- **Method 1（推奨）**: `DSN`または`DATABASE_DSN`のみ指定
+- **Method 2**: `DB_TYPE`, `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`を個別指定
+
+#### 10. Claude Code MCP
+
+| 環境変数 | 必須/オプション | デフォルト値 | 説明 |
+|---------|--------------|------------|------|
+| MCP_TIMEOUT | オプション | `30000` | MCPリクエストのタイムアウト（ミリ秒） |
+| MAX_MCP_OUTPUT_TOKENS | オプション | `10000` | MCPレスポンスの最大トークン数 |
+
+### 🔧 データベース接続文字列（DSN）の形式
+
+#### PostgreSQL
+```bash
+DSN="postgres://USERNAME:PASSWORD@HOST:PORT/DATABASE?sslmode=disable"
+```
+
+SSL接続が必要な場合：
+```bash
+DSN="postgres://USERNAME:PASSWORD@HOST:PORT/DATABASE?sslmode=require"
+```
+
+#### MySQL / MariaDB
+```bash
+DSN="mysql://USERNAME:PASSWORD@HOST:PORT/DATABASE"
+```
+
+#### SQLite
+```bash
+DSN="sqlite:///PATH/TO/DATABASE.db"
+```
+
+#### SQL Server
+```bash
+DSN="sqlserver://USERNAME:PASSWORD@HOST:PORT?database=DATABASE"
+```
+
+**注意事項:**
+- パスワードに特殊文字が含まれる場合は、URLエンコードが必要（例: `@` → `%40`, `#` → `%23`）
+- ローカルデータベースの場合は `localhost` を使用
+
+### 🔐 Slack通知の環境変数
+
+| 環境変数 | 必須/オプション | デフォルト値 | 説明 |
+|---------|--------------|------------|------|
+| SLACK_BOT_TOKEN | 必須（Slack通知用） | - | Slack Bot User OAuth Token（`xoxb-`で始まる） |
+| SLACK_CHANNEL_ID | 必須（Slack通知用） | - | 通知先チャンネルID（`C`で始まる） |
+| SLACK_USER_MENTION | オプション | - | メンション対象ユーザーID（`<@U0123456789>`形式） |
+
+詳細な設定手順は[SLACK_BOT_TOKENとSLACK_CHANNEL_IDの設定方法](#各認証情報の詳細設定)を参照してください。
+
+### 🛡️ セキュリティのベストプラクティス
+
+- ✅ `.env` ファイルを `.gitignore` に追加
+- ✅ 最小限のスコープ/権限を使用
+- ✅ トークンを定期的にローテーション
+- ✅ チーム内で環境変数を安全に共有（1Password、AWS Secrets Manager等）
+- ❌ トークンをコードやドキュメントにコミットしない
+- ❌ トークンをSlack/メール等で平文送信しない
 
 ## 機能詳細
 
@@ -456,9 +748,10 @@ mainブランチを更新し、マージ済みのfeatureブランチを安全に
    BigQuery、DBHub、Notionなどを有効化した場合は、`.env`ファイルに対応する認証情報も設定してください：
    ```bash
    # .envファイルに追加
-   NOTION_API_KEY=your_notion_api_key_here
-   DATABASE_DSN=mysql://user:pass@host:3306/db
-   GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json
+   NOTION_TOKEN=your_notion_integration_token_here
+   DSN=mysql://user:pass@host:3306/db
+   BIGQUERY_PROJECT=your-gcp-project-id
+   BIGQUERY_KEY_FILE=/path/to/service-account-key.json
    ```
 
 5. **Claude Codeを再起動**
@@ -479,9 +772,9 @@ mainブランチを更新し、マージ済みのfeatureブランチを安全に
 
 | MCP | 必要な認証情報 | 用途 |
 |-----|-------------|------|
-| **Notion MCP** | `NOTION_API_KEY` | Notionドキュメント管理 |
-| **BigQuery MCP** | `GOOGLE_APPLICATION_CREDENTIALS` | BigQueryデータ分析 |
-| **DBHub MCP** | `DATABASE_DSN` | データベース操作（MySQL/PostgreSQL等） |
+| **Notion MCP** | `NOTION_TOKEN` | Notionドキュメント管理 |
+| **BigQuery MCP** | `BIGQUERY_PROJECT`, `BIGQUERY_KEY_FILE`（オプション） | BigQueryデータ分析 |
+| **DBHub MCP** | `DSN`（または`DATABASE_DSN`） | データベース操作（MySQL/PostgreSQL等） |
 | **AWS Docs MCP** | 不要 | AWS公式ドキュメント検索 |
 | **Claude Code MCP** | 不要 | Claude Code機能拡張 |
 
