@@ -31,8 +31,7 @@
         "GITHUB_READ_ONLY": "${GITHUB_READ_ONLY}",
         "GITHUB_LOCKDOWN_MODE": "${GITHUB_LOCKDOWN_MODE}",
         "GITHUB_DYNAMIC_TOOLSETS": "${GITHUB_DYNAMIC_TOOLSETS}"
-      },
-      "envFile": "${workspaceFolder}/.env"
+      }
     },
     "notion": {
       "type": "http",
@@ -59,7 +58,7 @@
         "False"
       ],
       "env": {
-        "SERENA_HOME": "${SERENA_HOME}",
+        "SERENA_HOME": "${SERENA_HOME:-.serena}",
         "GOOGLE_API_KEY": "${GOOGLE_API_KEY}",
         "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}"
       },
@@ -90,9 +89,7 @@
         "BIGQUERY_LOCATION": "${BIGQUERY_LOCATION}",
         "BIGQUERY_DATASETS": "${BIGQUERY_DATASETS}",
         "BIGQUERY_KEY_FILE": "${BIGQUERY_KEY_FILE}"
-      },
-      "envFile": "${workspaceFolder}/.env",
-      "disabled": true
+      }
     },
     "dbhub": {
       "type": "stdio",
@@ -146,7 +143,7 @@
         "mcp-server"
       ],
       "env": {
-        "CODEX_HOME": "${CODEX_HOME}",
+        "CODEX_HOME": "${CODEX_HOME:-.codex}",
         "OPENAI_API_KEY": "${OPENAI_API_KEY}",
         "OPENAI_BASE_URL": "${OPENAI_BASE_URL}",
         "AZURE_OPENAI_API_KEY": "${AZURE_OPENAI_API_KEY}",

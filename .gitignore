@@ -32,7 +32,7 @@ yarn-error.log*
 # Plugin-generated context files
 # (none currently)
 
-# Serena MCP runtime data
+# MCP runtime data
 ${SERENA_HOME}/
-.serena/logs/
-.serena/cache/
+.serena/
+.codex/
