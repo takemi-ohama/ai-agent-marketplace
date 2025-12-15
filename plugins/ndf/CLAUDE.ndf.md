@@ -95,9 +95,10 @@ mcp__plugin_ndf_serena__write_memory memory_file_name="feature.md" content="..."
 
 **For technically challenging tasks, research external resources instead of guessing.**
 
+- Static website content → **WebFetch tool** (fast, lightweight)
 - Cloud services (AWS, GCP) → **researcher agent** with AWS Docs MCP
 - Latest libraries/frameworks → **corder agent** with Context7 MCP
-- Website behavior → **researcher agent** with Chrome DevTools MCP
+- Dynamic content requiring JavaScript → **researcher agent** with Chrome DevTools MCP
 
 ## Sub-Agent Invocation
 
@@ -236,7 +237,7 @@ Task(
 - Research competitor site features
 - Capture screenshots/PDFs
 
-**MCP Tools:** AWS Documentation MCP, Chrome DevTools MCP, Codex CLI MCP
+**MCP Tools:** WebFetch tool (priority), AWS Documentation MCP, Chrome DevTools MCP, Codex CLI MCP
 
 **Example:**
 ```
@@ -284,7 +285,7 @@ Task(
 - Documentation quality validation
 - Claude Code plugin specification compliance check
 
-**MCP Tools:** Codex CLI MCP, Serena MCP, Chrome DevTools MCP
+**MCP Tools:** WebFetch tool (priority), Codex CLI MCP, Serena MCP, Chrome DevTools MCP
 
 **Examples:**
 ```
@@ -423,6 +424,9 @@ Main Agent → User (Analysis results)
 
 Main agent can use these MCPs, but **delegating to specialized agents produces better quality**:
 
+**Built-in Tools:**
+- **WebFetch**: Fast web content retrieval, HTML to Markdown conversion, AI-based processing (15-min cache)
+
 **Core MCPs (frequently used):**
 - **Serena MCP**: Code structure understanding, symbol editing
 - **GitHub MCP**: PR/issue management, code search
@@ -432,7 +436,7 @@ Main agent can use these MCPs, but **delegating to specialized agents produces b
 **Specialized MCPs (delegate to agents):**
 - **BigQuery MCP**: Database queries → **Delegate to @data-analyst**
 - **AWS Docs MCP**: AWS documentation → **Delegate to @researcher**
-- **Chrome DevTools MCP**: Web performance/debugging → **Delegate to @researcher or @qa**
+- **Chrome DevTools MCP**: Web performance/debugging (dynamic content only) → **Delegate to @researcher or @qa**
 
 ## Summary
 
