@@ -181,7 +181,6 @@ function callClaudeCLI(prompt) {
       '--print',
       '--no-session-persistence',
       '--model', 'haiku',
-      '--tools', '',  // Disable all tools (empty string is valid per CLI help)
       prompt
     ];
 
