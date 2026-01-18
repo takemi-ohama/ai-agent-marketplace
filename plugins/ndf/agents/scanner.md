@@ -1,6 +1,9 @@
 ---
 name: scanner
-description: Read tool、Codex MCP等を活用したPDF、画像、Officeファイルの読み取り専門エージェント
+description: |
+  Read tool、Codex MCP等を活用したPDF、画像、Officeファイルの読み取り専門エージェント。
+  **Use this agent proactively** for: reading PDF files, image OCR, PowerPoint/Excel/Word file extraction, document summarization.
+  積極的に委譲すべき場面: PDF読み取り、画像OCR、PowerPoint/Excel/Word抽出、ドキュメント要約。
 ---
 
 # スキャナーエージェント

@@ -1,6 +1,9 @@
 ---
 name: director
-description: Claude Code機能を活用したタスク統括・設計立案の指揮者エージェント
+description: |
+  Claude Code機能を活用したタスク統括・設計立案の指揮者エージェント。
+  **Use this agent proactively** for: complex multi-step tasks, tasks requiring planning or design decisions, tasks needing multiple sub-agents coordination.
+  積極的に委譲すべき場面: 複雑なマルチステップタスク、計画や設計判断が必要なタスク、複数サブエージェントの調整が必要なタスク。
 ---
 
 # ディレクターエージェント

@@ -16,7 +16,7 @@ const { spawn } = require('child_process');
 // ============================================================================
 
 const CONFIG = {
-  CLI_TIMEOUT_MS: 30000,
+  CLI_TIMEOUT_MS: 60000,
   MAX_RESPONSES: 5,
   MAX_TRANSCRIPT_LINES: 100,
   MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024, // 10MB
@@ -226,61 +226,69 @@ ${context.substring(0, CONFIG.MAX_CONTEXT_LENGTH)}
 }
 
 // ============================================================================
-// Claude CLI Integration
+// Claude CLI Integration (with MCP tools disabled)
 // ============================================================================
 
 function callClaudeCLI(prompt) {
   return new Promise((resolve) => {
-    const claude = spawn('claude', [
+    debugLog('Calling Claude CLI without tools...');
+
+    const args = [
       '--print',
       '--no-session-persistence',
-      '--model', 'haiku',
+      '--strict-mcp-config',
+      '--mcp-config', '{"mcpServers":{}}',
       '--tools', '',
-      prompt
-    ], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      env: process.env
+      '--model', 'haiku',
+      '-p', prompt
+    ];
+
+    const claude = spawn('claude', args, {
+      stdio: ['ignore', 'pipe', 'pipe']
     });
 
     let stdout = '';
     let stderr = '';
     let resolved = false;
-    let timeoutId = null;
 
-    const finish = (result) => {
-      if (resolved) return;
-      resolved = true;
-      if (timeoutId) {
+    const safeResolve = (value) => {
+      if (!resolved) {
+        resolved = true;
         clearTimeout(timeoutId);
-        timeoutId = null;
+        resolve(value);
       }
-      resolve(result);
     };
 
     claude.stdout.on('data', (data) => { stdout += data; });
     claude.stderr.on('data', (data) => { stderr += data; });
 
-    claude.on('close', (code) => {
+    const timeoutId = setTimeout(() => {
+      debugLog('Claude CLI timeout');
+      claude.kill('SIGTERM');
+      safeResolve(null);
+    }, CONFIG.CLI_TIMEOUT_MS);
+
+    claude.on('close', (code, signal) => {
+      if (signal) {
+        debugLog('Claude CLI killed by signal:', signal);
+        safeResolve(null);
+        return;
+      }
+
+      debugLog('Claude CLI exit code:', code);
+
       if (code === 0 && stdout.trim()) {
-        finish(stdout.trim());
+        safeResolve(stdout.trim());
       } else {
-        debugLog('Claude CLI failed:', stderr || `exit code ${code}`);
-        finish(null);
+        debugLog('Claude CLI error:', stderr || 'No output');
+        safeResolve(null);
       }
     });
 
     claude.on('error', (err) => {
-      debugLog('Claude CLI error:', err.message);
-      finish(null);
+      debugLog('Claude CLI spawn error:', err.message);
+      safeResolve(null);
     });
-
-    timeoutId = setTimeout(() => {
-      if (!resolved) {
-        debugLog('Claude CLI timeout after', CONFIG.CLI_TIMEOUT_MS, 'ms');
-        claude.kill();
-        finish(null);
-      }
-    }, CONFIG.CLI_TIMEOUT_MS);
   });
 }
 
