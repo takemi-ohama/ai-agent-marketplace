@@ -18,6 +18,8 @@ const { spawn } = require('child_process');
 const CONFIG = {
   CLI_TIMEOUT_MS: 30000,
   MAX_RESPONSES: 5,
+  MAX_TRANSCRIPT_LINES: 100,
+  MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024, // 10MB
   MIN_TEXT_LENGTH: 5,
   MIN_RESPONSE_LENGTH: 10,
   MAX_CONTENT_LENGTH: 500,
@@ -51,8 +53,14 @@ const safeJsonParse = (str) => {
 const readFileLines = (filePath) => {
   if (!fs.existsSync(filePath)) return null;
   try {
+    const stats = fs.statSync(filePath);
+    if (stats.size > CONFIG.MAX_FILE_SIZE_BYTES) {
+      debugLog('Transcript file too large:', stats.size, 'bytes');
+      return null;
+    }
     return fs.readFileSync(filePath, 'utf8').trim().split('\n');
-  } catch {
+  } catch (error) {
+    debugLog('Error reading transcript file:', error.message);
     return null;
   }
 };
@@ -124,8 +132,11 @@ function extractTextFromContent(content) {
 }
 
 function parseTranscriptData(transcriptPath) {
-  const lines = readFileLines(transcriptPath);
-  if (!lines) return { firstRequest: null, assistantResponses: [] };
+  const allLines = readFileLines(transcriptPath);
+  if (!allLines) return { firstRequest: null, assistantResponses: [] };
+
+  // Process only recent lines to avoid memory issues with large files
+  const lines = allLines.slice(-CONFIG.MAX_TRANSCRIPT_LINES);
 
   let firstRequest = null;
   const assistantResponses = [];
@@ -137,7 +148,7 @@ function parseTranscriptData(transcriptPath) {
     const { role, content } = data.message;
     const text = extractTextFromContent(content);
 
-    // Get first valid user request
+    // Get first valid user request (within recent lines)
     if (!firstRequest &&
         role === 'user' &&
         data.type === 'user' &&
@@ -234,10 +245,15 @@ function callClaudeCLI(prompt) {
     let stdout = '';
     let stderr = '';
     let resolved = false;
+    let timeoutId = null;
 
     const finish = (result) => {
       if (resolved) return;
       resolved = true;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
       resolve(result);
     };
 
@@ -258,10 +274,12 @@ function callClaudeCLI(prompt) {
       finish(null);
     });
 
-    setTimeout(() => {
-      debugLog('Claude CLI timeout after', CONFIG.CLI_TIMEOUT_MS, 'ms');
-      claude.kill();
-      finish(null);
+    timeoutId = setTimeout(() => {
+      if (!resolved) {
+        debugLog('Claude CLI timeout after', CONFIG.CLI_TIMEOUT_MS, 'ms');
+        claude.kill();
+        finish(null);
+      }
     }, CONFIG.CLI_TIMEOUT_MS);
   });
 }
