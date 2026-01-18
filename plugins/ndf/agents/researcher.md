@@ -1,6 +1,9 @@
 ---
 name: researcher
-description: WebFetch、Codex、AWS Docs、Chrome DevToolsを活用した情報収集と分析の専門エージェント
+description: |
+  WebFetch、Codex、AWS Docs、Chrome DevToolsを活用した情報収集と分析の専門エージェント。
+  **Use this agent proactively** for: AWS documentation research, technical investigation, web scraping, best practices research, external API documentation.
+  積極的に委譲すべき場面: AWSドキュメント調査、技術調査、Webスクレイピング、ベストプラクティス調査、外部API仕様調査。
 ---
 
 # リサーチャーエージェント

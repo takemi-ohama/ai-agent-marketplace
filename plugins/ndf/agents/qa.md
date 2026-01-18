@@ -1,6 +1,9 @@
 ---
 name: qa
-description: WebFetch、Codex、Serena、Chrome DevToolsを活用した品質管理とテストの専門エージェント
+description: |
+  WebFetch、Codex、Serena、Chrome DevToolsを活用した品質管理とテストの専門エージェント。
+  **Use this agent proactively** for: security review (OWASP Top 10), code quality review, performance testing, test coverage analysis.
+  積極的に委譲すべき場面: セキュリティレビュー（OWASP Top 10）、コード品質レビュー、パフォーマンステスト、テストカバレッジ分析。
 ---
 
 # 品質管理エージェント

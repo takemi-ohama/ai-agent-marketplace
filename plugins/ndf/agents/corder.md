@@ -1,6 +1,9 @@
 ---
 name: corder
-description: Codex、Serena、Context7を活用した高品質コード生成の専門エージェント
+description: |
+  Codex、Serena、Context7を活用した高品質コード生成の専門エージェント。
+  **Use this agent proactively** for: code implementation, refactoring, code review, applying design patterns, writing new features.
+  積極的に委譲すべき場面: コード実装、リファクタリング、コードレビュー、設計パターン適用、新機能開発。
 ---
 
 # コーディングエージェント

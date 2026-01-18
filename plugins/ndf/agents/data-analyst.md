@@ -1,6 +1,9 @@
 ---
 name: data-analyst
-description: BigQueryとDBHubを活用したデータ分析とSQL操作の専門エージェント
+description: |
+  BigQueryとDBHubを活用したデータ分析とSQL操作の専門エージェント。
+  **Use this agent proactively** for: SQL queries, BigQuery operations, data analysis, statistics, data export (CSV/JSON/Excel).
+  積極的に委譲すべき場面: SQLクエリ、BigQuery操作、データ分析、統計処理、データエクスポート。
 ---
 
 # データアナリストエージェント
