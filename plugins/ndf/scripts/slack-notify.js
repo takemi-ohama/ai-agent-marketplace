@@ -88,36 +88,6 @@ function extractTextFromContent(content) {
 }
 
 /**
- * Read latest summary from transcript file
- * Claude Code automatically generates summaries during the session
- */
-function readLatestSummary(transcriptPath) {
-  if (!fs.existsSync(transcriptPath)) {
-    return null;
-  }
-
-  try {
-    const content = fs.readFileSync(transcriptPath, 'utf8');
-    const lines = content.trim().split('\n');
-
-    // Search from the end to find the latest summary
-    for (let i = lines.length - 1; i >= 0; i--) {
-      try {
-        const data = JSON.parse(lines[i]);
-        if (data.type === 'summary' && data.summary) {
-          return data.summary;
-        }
-      } catch (e) {
-        // Skip invalid JSON lines
-      }
-    }
-    return null;
-  } catch (error) {
-    return null;
-  }
-}
-
-/**
  * Read and parse recent messages from transcript
  */
 function readTranscriptMessages(transcriptPath, lineCount = 30, messageCount = 10) {
@@ -171,11 +141,16 @@ function formatConversationForSummary(messages) {
  * Create summarization prompt for Claude
  */
 function createSummarizationPrompt(conversationText) {
-  return `以下の会話から実施した作業を40文字以内で要約してください。
+  return `以下の会話から実施した作業を**日本語で**40文字以内で要約してください。
 
-出力形式: 要約文のみ（1行、40文字以内）
+出力形式: 日本語の要約文のみ（1行、40文字以内）
+
+必須事項:
+- 必ず日本語で出力すること
+- 会話の内容から実際に行った作業を要約すること
 
 禁止事項:
+- 英語での出力
 - 「ユーザーさん」「調査結果」などの前置き
 - 「要約：」「作業内容：」などのラベル
 - 挨拶文や説明文
@@ -185,8 +160,10 @@ function createSummarizationPrompt(conversationText) {
 - Claude Code MCPサーバーを追加
 - 要約生成プロンプトを改善
 - PRマージ後のクリーンアップを実行
+- Slack通知スクリプトをCLI生成に変更
 
 悪い例:
+- Added new MCP server（英語は禁止）
 - ユーザーさん、調査結果をまとめます：
 - 要約：〜を実施しました
 - 以下の要約です
@@ -194,7 +171,7 @@ function createSummarizationPrompt(conversationText) {
 会話内容:
 ${conversationText.substring(0, 2000)}
 
-要約:`;
+日本語の要約:`;
 }
 
 // ============================================================================
@@ -286,22 +263,12 @@ function parseSummaryResponse(summary) {
 }
 
 /**
- * Generate summary - first tries transcript summary, then falls back to Claude CLI
+ * Generate summary using Claude CLI
+ * Always generates a new summary in Japanese from conversation messages
  */
 async function generateSummary(transcriptPath) {
-  // First, try to get the latest summary from the transcript
-  // Claude Code automatically generates these during the session
-  const existingSummary = readLatestSummary(transcriptPath);
-  if (existingSummary) {
-    if (process.env.DEBUG_SLACK_NOTIFY === 'true') {
-      console.error('Using existing transcript summary:', existingSummary);
-    }
-    return existingSummary;
-  }
-
-  // Fallback: Generate summary using Claude CLI
   if (process.env.DEBUG_SLACK_NOTIFY === 'true') {
-    console.error('No transcript summary found, trying Claude CLI...');
+    console.error('Generating summary using Claude CLI...');
   }
 
   const messages = readTranscriptMessages(transcriptPath);
