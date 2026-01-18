@@ -244,12 +244,20 @@ function callClaudeCLI(prompt) {
     ];
 
     const claude = spawn('claude', args, {
-      stdio: ['ignore', 'pipe', 'pipe'],
-      timeout: CONFIG.CLI_TIMEOUT_MS
+      stdio: ['ignore', 'pipe', 'pipe']
     });
 
     let stdout = '';
     let stderr = '';
+    let resolved = false;
+
+    const safeResolve = (value) => {
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(timeoutId);
+        resolve(value);
+      }
+    };
 
     claude.stdout.on('data', (data) => { stdout += data; });
     claude.stderr.on('data', (data) => { stderr += data; });
@@ -257,25 +265,29 @@ function callClaudeCLI(prompt) {
     const timeoutId = setTimeout(() => {
       debugLog('Claude CLI timeout');
       claude.kill('SIGTERM');
-      resolve(null);
+      safeResolve(null);
     }, CONFIG.CLI_TIMEOUT_MS);
 
-    claude.on('close', (code) => {
-      clearTimeout(timeoutId);
+    claude.on('close', (code, signal) => {
+      if (signal) {
+        debugLog('Claude CLI killed by signal:', signal);
+        safeResolve(null);
+        return;
+      }
+
       debugLog('Claude CLI exit code:', code);
 
       if (code === 0 && stdout.trim()) {
-        resolve(stdout.trim());
+        safeResolve(stdout.trim());
       } else {
         debugLog('Claude CLI error:', stderr || 'No output');
-        resolve(null);
+        safeResolve(null);
       }
     });
 
     claude.on('error', (err) => {
-      clearTimeout(timeoutId);
       debugLog('Claude CLI spawn error:', err.message);
-      resolve(null);
+      safeResolve(null);
     });
   });
 }
